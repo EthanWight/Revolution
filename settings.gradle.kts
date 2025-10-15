@@ -20,5 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Revolution"
+rootProject.name = "Revolution-App"
 include(":app")
