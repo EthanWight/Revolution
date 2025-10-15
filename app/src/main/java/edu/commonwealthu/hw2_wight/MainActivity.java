@@ -140,9 +140,6 @@ public class MainActivity extends AppCompatActivity {
         selectedAnchorRow = -1;
         selectedAnchorCol = -1;
         populateGrid();
-        if (rotationControlsLayout != null) {
-            rotationControlsLayout.setVisibility(View.GONE);
-        }
         updateUndoButtonAndMenuState();
         setGridButtonsEnabled(true);
     }
