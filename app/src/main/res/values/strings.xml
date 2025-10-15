@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">hw2-Wight</string>
+    <string name="rotate_left">Rotate Left</string>
+    <string name="rotate_right">Rotate Right</string>
+    <string name="new_game">New Game</string>
+    <string name="solution_depth">Solution Depth:</string>
+    <string name="undo">Undo</string>
+    <string name="about">About</string>
+    <string name="exit">Exit</string>
+    <string name="about_message">Revolution Game - hw2-Wight\nDeveloped by Ethan Wight</string>
+    <string name="undo_error">Error: No moves to undo.</string>
+    <string name="undo_success">Move undone.</string>
+    <string name="exit_confirmation_message">Are you sure you want to exit?</string>
+    <string name="congratulations">Congratulations! You solved the puzzle!</string>
+    <string name="invalid_tile_selection">Invalid tile. Click a rotation button or select a new anchor.</string>
+    <string name="select_subgrid_prompt">Select a tile that can be the top-left of a 2x2 subgrid.</string>
+    <string name="subgrid_selection_prompt">Please select a 2x2 subgrid to rotate first.</string>
+</resources>

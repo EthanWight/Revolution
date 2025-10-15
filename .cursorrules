@@ -1,0 +1,63 @@
+# Cursor Rules for Android Development
+
+## Project Context
+This is an Android Studio project for a Revolution puzzle game written in Java. The project uses:
+- Java 11
+- Android Gradle Plugin 8.13.0
+- Android SDK 36 (compileSdk)
+- Minimum SDK 24
+- Material Design components
+- Standard Android architecture patterns
+
+## Code Style & Conventions
+- Follow Android Java coding conventions
+- Use meaningful variable and method names
+- Include comprehensive JavaDoc comments for public methods
+- Use proper Android lifecycle management
+- Follow Material Design guidelines for UI components
+- Use proper resource naming conventions (snake_case for resources)
+
+## File Structure
+- Main activity: `app/src/main/java/edu/commonwealthu/hw2_wight/MainActivity.java`
+- Game logic: `app/src/main/java/edu/commonwealthu/hw2_wight/Revolution.java`
+- Layouts: `app/src/main/res/layout/`
+- Resources: `app/src/main/res/values/`
+- Gradle files: `build.gradle.kts`, `app/build.gradle.kts`
+
+## Android-Specific Guidelines
+- Always handle Android lifecycle methods properly
+- Use proper context handling (avoid memory leaks)
+- Follow Android resource management best practices
+- Use appropriate Android UI components and layouts
+- Handle configuration changes properly
+- Use proper error handling for Android-specific operations
+
+## Build System
+- Use Gradle Kotlin DSL (build.gradle.kts)
+- Follow Android Gradle Plugin conventions
+- Use version catalogs (libs.versions.toml) for dependency management
+- Properly configure build variants and signing
+
+## Testing
+- Write unit tests for business logic
+- Write instrumented tests for UI components
+- Use Android testing frameworks (JUnit, Espresso)
+
+## Performance
+- Optimize for mobile performance
+- Use proper threading (avoid blocking UI thread)
+- Implement proper memory management
+- Use efficient data structures and algorithms
+
+## Security
+- Follow Android security best practices
+- Handle sensitive data properly
+- Use proper input validation
+- Follow Android permissions model
+
+When making changes:
+1. Ensure compatibility with Android SDK versions
+2. Test on different screen sizes and orientations
+3. Follow Material Design principles
+4. Maintain backward compatibility where possible
+5. Update documentation and comments as needed
