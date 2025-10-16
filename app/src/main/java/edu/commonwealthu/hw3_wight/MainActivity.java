@@ -1,5 +1,9 @@
 package edu.commonwealthu.hw3_wight;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.Animator;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,6 +14,8 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -52,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int DEFAULT_GRID_ROWS = 3;
     private static final int DEFAULT_GRID_COLS = 3;
     private static final int SUBGRID_SIZE = 2;
+    private static final long ROTATION_ANIMATION_DURATION = 400;
 
     // Current grid dimensions
     private int currentRows = DEFAULT_GRID_ROWS;
@@ -67,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
     private Button undoButton;
     private int defaultButtonBackgroundColor;
     private int selectedButtonBackgroundColor;
+
+    // Animation state
+    private boolean isAnimating = false;
 
     // For flashing visual effect
     private Handler flashHandler;
@@ -291,6 +301,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onTileClicked(int r, int c) {
+        if (isAnimating) {
+            return; // Don't allow selection during animation
+        }
+
         boolean isAnchor = r < currentRows - 1 && c < currentCols - 1;
 
         if (isAnchor) {
@@ -348,28 +362,170 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void rotateSelectedSubgrid(boolean isLeftRotation) {
+        if (isAnimating) {
+            Toast.makeText(this, "Animation in progress...", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (selectedAnchorRow != -1 && selectedAnchorCol != -1) {
             playRotationSound();
-
-            if (isLeftRotation) {
-                game.rotateLeft(selectedAnchorRow, selectedAnchorCol);
-            } else {
-                game.rotateRight(selectedAnchorRow, selectedAnchorCol);
-            }
-            updateGridNumbers();
-            clearSubgridHighlight();
-            selectedAnchorRow = -1;
-            selectedAnchorCol = -1;
-            updateUndoButtonAndMenuState();
-            if (game.isOver()) {
-                showCongratulationsVisualEffect();
-            }
+            animateRotation(selectedAnchorRow, selectedAnchorCol, isLeftRotation);
         } else {
             Toast.makeText(this, getString(R.string.subgrid_selection_prompt), Toast.LENGTH_SHORT).show();
         }
     }
 
+    /**
+     * Animates the rotation of a 2x2 subgrid with smooth visual effects.
+     *
+     * @param anchorRow      The top-left row of the subgrid
+     * @param anchorCol      The top-left column of the subgrid
+     * @param isLeftRotation True for counter-clockwise, false for clockwise
+     */
+    private void animateRotation(int anchorRow, int anchorCol, boolean isLeftRotation) {
+        isAnimating = true;
+        setControlsEnabled(false);
+
+        // Get the four buttons in the subgrid
+        Button topLeft = gameButtons[anchorRow][anchorCol];
+        Button topRight = gameButtons[anchorRow][anchorCol + 1];
+        Button bottomLeft = gameButtons[anchorRow + 1][anchorCol];
+        Button bottomRight = gameButtons[anchorRow + 1][anchorCol + 1];
+
+        // Calculate button dimensions for translation
+        int buttonWidth = topLeft.getWidth();
+        int buttonHeight = topLeft.getHeight();
+
+        // Create animation sets for each button
+        AnimatorSet animatorSet = new AnimatorSet();
+
+        // Rotation angle: positive for clockwise, negative for counter-clockwise
+        float rotationAngle = isLeftRotation ? -90f : 90f;
+
+        if (isLeftRotation) {
+            // Counter-clockwise: TL→BL, TR→TL, BR→TR, BL→BR
+            animatorSet.playTogether(
+                    createTileAnimation(topLeft, 0, buttonHeight, rotationAngle),
+                    createTileAnimation(topRight, -buttonWidth, 0, rotationAngle),
+                    createTileAnimation(bottomRight, 0, -buttonHeight, rotationAngle),
+                    createTileAnimation(bottomLeft, buttonWidth, 0, rotationAngle)
+            );
+        } else {
+            // Clockwise: TL→TR, TR→BR, BR→BL, BL→TL
+            animatorSet.playTogether(
+                    createTileAnimation(topLeft, buttonWidth, 0, rotationAngle),
+                    createTileAnimation(topRight, 0, buttonHeight, rotationAngle),
+                    createTileAnimation(bottomRight, -buttonWidth, 0, rotationAngle),
+                    createTileAnimation(bottomLeft, 0, -buttonHeight, rotationAngle)
+            );
+        }
+
+        animatorSet.setDuration(ROTATION_ANIMATION_DURATION);
+        animatorSet.setInterpolator(new DecelerateInterpolator());
+
+        animatorSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                // Update the game state
+                if (isLeftRotation) {
+                    game.rotateLeft(anchorRow, anchorCol);
+                } else {
+                    game.rotateRight(anchorRow, anchorCol);
+                }
+
+                // Reset visual properties
+                resetTileProperties(topLeft);
+                resetTileProperties(topRight);
+                resetTileProperties(bottomLeft);
+                resetTileProperties(bottomRight);
+
+                // Update grid with new numbers
+                updateGridNumbers();
+                clearSubgridHighlight();
+                selectedAnchorRow = -1;
+                selectedAnchorCol = -1;
+
+                // Re-enable controls
+                isAnimating = false;
+                setControlsEnabled(true);
+                updateUndoButtonAndMenuState();
+
+                // Check for win condition
+                if (game.isOver()) {
+                    showCongratulationsVisualEffect();
+                }
+            }
+        });
+
+        animatorSet.start();
+    }
+
+    /**
+     * Creates an animation set for a single tile including translation, rotation, and scale.
+     *
+     * @param button     The button to animate
+     * @param deltaX     Translation in X direction
+     * @param deltaY     Translation in Y direction
+     * @param rotation   Rotation angle in degrees
+     * @return AnimatorSet containing all animations for this tile
+     */
+    private AnimatorSet createTileAnimation(Button button, float deltaX, float deltaY,
+                                            float rotation) {
+        // Translation animations
+        ObjectAnimator translateX = ObjectAnimator.ofFloat(button, "translationX", 0f, deltaX);
+        ObjectAnimator translateY = ObjectAnimator.ofFloat(button, "translationY", 0f, deltaY);
+
+        // Rotation animation
+        ObjectAnimator rotate = ObjectAnimator.ofFloat(button, "rotation", 0f, rotation);
+
+        // Scale animation for emphasis
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(button, "scaleX", 1f, 1.15f, 1f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(button, "scaleY", 1f, 1.15f, 1f);
+
+        // Subtle alpha for smoothness
+        ObjectAnimator alpha = ObjectAnimator.ofFloat(button, "alpha", 1f, 0.85f, 1f);
+
+        // Elevation for depth effect
+        ObjectAnimator elevation = ObjectAnimator.ofFloat(button, "elevation", 0f, 12f, 0f);
+
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(translateX, translateY, rotate, scaleX, scaleY, alpha, elevation);
+
+        return animatorSet;
+    }
+
+    /**
+     * Resets all animation properties of a button to their default values.
+     *
+     * @param button The button to reset
+     */
+    private void resetTileProperties(Button button) {
+        button.setTranslationX(0f);
+        button.setTranslationY(0f);
+        button.setRotation(0f);
+        button.setScaleX(1f);
+        button.setScaleY(1f);
+        button.setAlpha(1f);
+        button.setElevation(0f);
+    }
+
+    /**
+     * Enables or disables control buttons during animations.
+     *
+     * @param enabled True to enable controls, false to disable
+     */
+    private void setControlsEnabled(boolean enabled) {
+        rotateLeftButton.setEnabled(enabled);
+        rotateRightButton.setEnabled(enabled);
+        undoButton.setEnabled(enabled && game.moves() > 0);
+        setGridButtonsEnabled(enabled);
+    }
+
     private void performUndo() {
+        if (isAnimating) {
+            return;
+        }
+
         if (!game.undo()) {
             Toast.makeText(this, getString(R.string.undo_error), Toast.LENGTH_SHORT).show();
             return;
@@ -385,7 +541,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateUndoButtonAndMenuState() {
         boolean canUndo = game != null && game.moves() > 0;
         if (undoButton != null) {
-            undoButton.setEnabled(canUndo);
+            undoButton.setEnabled(canUndo && !isAnimating);
         }
     }
 
