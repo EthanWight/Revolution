@@ -12,7 +12,6 @@ import java.util.Stack;
  * manages the game's state, including the grid of numbers, move history, and
  * the rules for rotating sub-grids. The game is won when the numbers are sorted
  * in ascending order.
- *
  * Enhanced with surrender mode that allows undoing through the scrambling sequence
  * to reveal the solution.
  *
@@ -27,8 +26,6 @@ public class Revolution implements Serializable {
     private final Stack<Move> scrambleMoves;
     private boolean surrenderMode;
     private final Random random;
-
-    private static final int DEFAULT_GRID_SIZE = 3;
 
     /**
      * Represents a single rotation move in the puzzle.
@@ -63,15 +60,6 @@ public class Revolution implements Serializable {
 
         initializeGrid();
         scrambleGrid(solDepth);
-    }
-
-    /**
-     * Constructs a new Revolution game on a default 3x3 grid.
-     *
-     * @param solDepth The number of random moves to perform to scramble the puzzle.
-     */
-    public Revolution(int solDepth) {
-        this(DEFAULT_GRID_SIZE, DEFAULT_GRID_SIZE, solDepth);
     }
 
     /**
