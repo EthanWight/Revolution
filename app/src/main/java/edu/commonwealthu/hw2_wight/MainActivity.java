@@ -1,6 +1,7 @@
 package edu.commonwealthu.hw2_wight;
 
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,7 +12,6 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
@@ -31,7 +31,6 @@ import com.google.android.material.appbar.MaterialToolbar;
 /**
  * Plays the Revolution puzzle game. This class manages the user interface,
  * game state interactions, and visual feedback for the player.
- * Note: Sound effects for game actions have not been implemented yet.
  *
  * @author Ethan Wight
  */
@@ -53,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
     private Button rotateLeftButton;
     private Button rotateRightButton;
-    private ViewGroup rotationControlsLayout;
     private NumberPicker solutionDepthPicker;
     private Button undoButton;
     private int defaultButtonBackgroundColor;
@@ -66,6 +64,10 @@ public class MainActivity extends AppCompatActivity {
     private int flashCount = 0;
     private static final int MAX_FLASH_COUNT = 10;
     private static final long FLASH_INTERVAL_MS = 250;
+
+    // Sound effects
+    private MediaPlayer rotationSoundPlayer;
+    private MediaPlayer winSoundPlayer;
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -109,6 +111,9 @@ public class MainActivity extends AppCompatActivity {
         solutionDepthPicker.setValue(DEFAULT_SOLUTION_DEPTH);
         defaultButtonBackgroundColor = ContextCompat.getColor(this, R.color.colorPrimary);
 
+        // Initialize sound effect
+        initializeSoundEffect();
+
         // Setup UI controls and listeners
         Button newGameButton = findViewById(R.id.newGameButton);
         newGameButton.setOnClickListener(v -> startNewGame(solutionDepthPicker.getValue()));
@@ -116,7 +121,6 @@ public class MainActivity extends AppCompatActivity {
         undoButton.setOnClickListener(v -> performUndo());
         rotateLeftButton = findViewById(R.id.rotateLeftButton);
         rotateRightButton = findViewById(R.id.rotateRightButton);
-        rotationControlsLayout = findViewById(R.id.rotationControlsLayout);
 
         // Rotation controls are now always visible in both portrait and landscape
 
@@ -129,6 +133,67 @@ public class MainActivity extends AppCompatActivity {
         } else {
             // Start the first game
             startNewGame(solutionDepthPicker.getValue());
+        }
+    }
+
+    /**
+     * Initializes the sound effects for rotations and winning.
+     */
+    private void initializeSoundEffect() {
+        try {
+            rotationSoundPlayer = MediaPlayer.create(this, R.raw.rotation_sound);
+            if (rotationSoundPlayer != null) {
+                rotationSoundPlayer.setOnCompletionListener(mp -> {
+                    // Reset the player to be ready for next play
+                    mp.seekTo(0);
+                });
+            }
+
+            winSoundPlayer = MediaPlayer.create(this, R.raw.win_sound);
+            if (winSoundPlayer != null) {
+                winSoundPlayer.setOnCompletionListener(mp -> {
+                    // Reset the player to be ready for next play
+                    mp.seekTo(0);
+                });
+            }
+        } catch (Exception e) {
+            // If sound initialization fails, continue without sound
+            rotationSoundPlayer = null;
+            winSoundPlayer = null;
+        }
+    }
+
+    /**
+     * Plays the rotation sound effect.
+     */
+    private void playRotationSound() {
+        if (rotationSoundPlayer != null) {
+            try {
+                if (rotationSoundPlayer.isPlaying()) {
+                    rotationSoundPlayer.seekTo(0);
+                } else {
+                    rotationSoundPlayer.start();
+                }
+            } catch (Exception e) {
+                // Silently fail if sound cannot be played
+            }
+        }
+    }
+
+    /**
+     * Plays the win sound effect.
+     */
+    private void playWinSound() {
+        if (winSoundPlayer != null) {
+            try {
+                if (winSoundPlayer.isPlaying()) {
+                    winSoundPlayer.seekTo(0);
+                } else {
+                    winSoundPlayer.start();
+                }
+            } catch (Exception e) {
+                // Silently fail if sound cannot be played
+            }
         }
     }
 
@@ -268,6 +333,9 @@ public class MainActivity extends AppCompatActivity {
      */
     private void rotateSelectedSubgrid(boolean isLeftRotation) {
         if (selectedAnchorRow != -1 && selectedAnchorCol != -1) {
+            // Play sound effect before rotation
+            playRotationSound();
+
             if (isLeftRotation) {
                 game.rotateLeft(selectedAnchorRow, selectedAnchorCol);
             } else {
@@ -337,6 +405,9 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, getString(R.string.congratulations), Toast.LENGTH_LONG).show();
         setGridButtonsEnabled(false);
         undoButton.setEnabled(false);
+
+        // Play win sound
+        playWinSound();
 
         flashCount = 0;
         flashColorIndex = 0;
@@ -429,6 +500,30 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         if (flashHandler != null && flashRunnable != null) {
             flashHandler.removeCallbacks(flashRunnable);
+        }
+
+        // Release sound resources
+        if (rotationSoundPlayer != null) {
+            rotationSoundPlayer.release();
+            rotationSoundPlayer = null;
+        }
+        if (winSoundPlayer != null) {
+            winSoundPlayer.release();
+            winSoundPlayer = null;
+        }
+    }
+
+    /**
+     * Pauses audio when activity is paused.
+     */
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (rotationSoundPlayer != null && rotationSoundPlayer.isPlaying()) {
+            rotationSoundPlayer.pause();
+        }
+        if (winSoundPlayer != null && winSoundPlayer.isPlaying()) {
+            winSoundPlayer.pause();
         }
     }
 }
