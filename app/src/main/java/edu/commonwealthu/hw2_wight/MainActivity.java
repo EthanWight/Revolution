@@ -6,10 +6,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
@@ -107,6 +109,9 @@ public class MainActivity extends AppCompatActivity {
         solutionDepthPicker.setValue(DEFAULT_SOLUTION_DEPTH);
         defaultButtonBackgroundColor = ContextCompat.getColor(this, R.color.colorPrimary);
 
+        // Set proper grid dimensions
+        setGridDimensions();
+
         // Setup UI controls and listeners
         Button newGameButton = findViewById(R.id.newGameButton);
         newGameButton.setOnClickListener(v -> startNewGame(solutionDepthPicker.getValue()));
@@ -125,6 +130,39 @@ public class MainActivity extends AppCompatActivity {
             // Start the first game
             startNewGame(solutionDepthPicker.getValue());
         }
+    }
+
+    /**
+     * Sets the grid dimensions to ensure it maintains a square aspect ratio
+     */
+    private void setGridDimensions() {
+        gridLayout.post(() -> {
+            DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+            int screenWidth = displayMetrics.widthPixels;
+            int screenHeight = displayMetrics.heightPixels;
+
+            // Get the current orientation
+            int orientation = getResources().getConfiguration().orientation;
+
+            // Calculate the maximum size for the grid
+            int maxSize;
+            if (orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+                // In landscape, limit size to available height minus toolbar and margins
+                int availableHeight = screenHeight -
+                        (int)(getResources().getDimension(R.dimen.large_margin) * 2) -
+                        (getSupportActionBar() != null ? getSupportActionBar().getHeight() : 0);
+                maxSize = Math.min(availableHeight, screenWidth / 2);
+            } else {
+                // In portrait, limit to screen width minus margins
+                maxSize = Math.min(screenWidth, screenHeight) -
+                        (int)(getResources().getDimension(R.dimen.large_margin) * 4);
+            }
+
+            ViewGroup.LayoutParams params = gridLayout.getLayoutParams();
+            params.width = maxSize;
+            params.height = maxSize;
+            gridLayout.setLayoutParams(params);
+        });
     }
 
     /**
@@ -202,8 +240,8 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             String message = (selectedAnchorRow != -1)
-                ? getString(R.string.invalid_tile_selection)
-                : getString(R.string.select_subgrid_prompt);
+                    ? getString(R.string.invalid_tile_selection)
+                    : getString(R.string.select_subgrid_prompt);
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         }
     }
@@ -404,18 +442,18 @@ public class MainActivity extends AppCompatActivity {
         int itemId = item.getItemId();
         if (itemId == R.id.action_about) {
             new AlertDialog.Builder(this)
-                .setTitle(R.string.about)
-                .setMessage(R.string.about_message)
-                .setPositiveButton(android.R.string.ok, null)
-                .show();
+                    .setTitle(R.string.about)
+                    .setMessage(R.string.about_message)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show();
             return true;
         } else if (itemId == R.id.action_exit) {
             new AlertDialog.Builder(this)
-                .setTitle(R.string.exit)
-                .setMessage(getString(R.string.exit_confirmation_message))
-                .setPositiveButton(android.R.string.yes, (dialog, which) -> finish())
-                .setNegativeButton(android.R.string.no, null)
-                .show();
+                    .setTitle(R.string.exit)
+                    .setMessage(getString(R.string.exit_confirmation_message))
+                    .setPositiveButton(android.R.string.yes, (dialog, which) -> finish())
+                    .setNegativeButton(android.R.string.no, null)
+                    .show();
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary"
+            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.MaterialComponents.Dark" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Grid takes up left side, sized to fit available height -->
+    <GridLayout
+        android:id="@+id/grid"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:columnCount="3"
+        android:rowCount="3"
+        android:padding="2dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="2dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/controlsContainer"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <!-- Controls container on the right side -->
+    <LinearLayout
+        android:id="@+id/controlsContainer"
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:paddingStart="2dp"
+        android:paddingEnd="4dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/grid"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/solutionDepthLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/solution_depth"
+            android:textSize="11sp"
+            android:layout_marginBottom="1dp"
+            android:gravity="center" />
+
+        <NumberPicker
+            android:id="@+id/solutionDepthPicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleX="0.75"
+            android:scaleY="0.75"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="2dp" />
+
+        <!-- Rotation controls - horizontal -->
+        <LinearLayout
+            android:id="@+id/rotationControlsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            android:layout_marginBottom="3dp">
+
+            <Button
+                android:id="@+id/rotateLeftButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_weight="1"
+                android:textColor="@color/button_text_color"
+                android:text="@string/rotate_left"
+                android:textSize="24sp"
+                android:minHeight="0dp"
+                android:padding="10dp"
+                android:layout_marginEnd="2dp" />
+
+            <Button
+                android:id="@+id/rotateRightButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_weight="1"
+                android:textColor="@color/button_text_color"
+                android:text="@string/rotate_right"
+                android:textSize="24sp"
+                android:minHeight="0dp"
+                android:padding="10dp"
+                android:layout_marginStart="2dp" />
+        </LinearLayout>
+
+        <!-- Game controls - horizontal -->
+        <LinearLayout
+            android:id="@+id/game_controls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/newGameButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_weight="1"
+                android:textColor="@color/button_text_color"
+                android:text="@string/new_game"
+                android:textSize="24sp"
+                android:minHeight="0dp"
+                android:padding="10dp"
+                android:layout_marginEnd="2dp" />
+
+            <Button
+                android:id="@+id/undoButton"
+                android:layout_width="0dp"
+                android:layout_height="72dp"
+                android:layout_weight="1"
+                android:textColor="@color/button_text_color"
+                android:text="@string/undo"
+                android:textSize="24sp"
+                android:minHeight="0dp"
+                android:padding="10dp"
+                android:layout_marginStart="2dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
