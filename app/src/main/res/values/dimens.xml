@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="button_text_size">18sp</dimen>
-    <dimen name="tile_text_size">22sp</dimen>
-    <dimen name="label_text_size">14sp</dimen>
+    <!-- Text sizes -->
+    <dimen name="button_text_size">16sp</dimen>
+    <dimen name="tile_text_size">28sp</dimen>
+    <dimen name="label_text_size">16sp</dimen>
+
+    <!-- Margins and padding -->
     <dimen name="large_margin">16dp</dimen>
     <dimen name="medium_margin">8dp</dimen>
     <dimen name="small_margin">4dp</dimen>
+    <dimen name="tiny_margin">2dp</dimen>
+
+    <!-- Button dimensions -->
+    <dimen name="button_min_height">48dp</dimen>
+    <dimen name="button_padding">8dp</dimen>
+
+    <!-- Landscape specific -->
+    <dimen name="landscape_button_text_size">14sp</dimen>
 </resources>

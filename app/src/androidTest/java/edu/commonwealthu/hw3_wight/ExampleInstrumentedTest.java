@@ -1,4 +1,4 @@
-package edu.commonwealthu.hw2_wight;
+package edu.commonwealthu.hw3_wight;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("edu.commonwealthu.hw2_wight", appContext.getPackageName());
+        assertEquals("edu.commonwealthu.hw3_wight", appContext.getPackageName());
     }
 }

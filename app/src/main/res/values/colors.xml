@@ -1,9 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Primary brand colors -->
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
-    <color name="button_text_color">#FFFFFF</color>
-    <color name="black">#000000</color>
 
+    <!-- UI element colors -->
+    <color name="button_text_color">#FFFFFF</color>
+    <color name="tile_background">#BB86FC</color>
+    <color name="tile_text_color">#000000</color>
+    <color name="selected_tile_background">#03DAC5</color>
+
+    <!-- Menu text color -->
+    <color name="menu_text_color">#FFFFFF</color>
+
+    <!-- Standard colors -->
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- Victory flash colors -->
+    <color name="flash_green">#4CAF50</color>
+    <color name="flash_yellow">#FFEB3B</color>
+    <color name="flash_magenta">#E91E63</color>
+    <color name="flash_cyan">#00BCD4</color>
+    <color name="flash_red">#F44336</color>
 </resources>

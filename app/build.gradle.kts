@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "edu.commonwealthu.hw2_wight"
+    namespace = "edu.commonwealthu.hw3_wight"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "edu.commonwealthu.hw2_wight"
+        applicationId = "edu.commonwealthu.hw3_wight"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

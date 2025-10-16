@@ -1,20 +1,16 @@
-package edu.commonwealthu.hw2_wight;
+package edu.commonwealthu.hw3_wight;
 
-import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
-import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
@@ -55,11 +51,12 @@ public class MainActivity extends AppCompatActivity {
     private NumberPicker solutionDepthPicker;
     private Button undoButton;
     private int defaultButtonBackgroundColor;
+    private int selectedButtonBackgroundColor;
 
     // For flashing visual effect
     private Handler flashHandler;
     private Runnable flashRunnable;
-    private final int[] flashColors = {Color.GREEN, Color.YELLOW, Color.MAGENTA, Color.CYAN, Color.RED};
+    private final int[] flashColors = new int[5]; // Will be populated from resources
     private int flashColorIndex = 0;
     private int flashCount = 0;
     private static final int MAX_FLASH_COUNT = 10;
@@ -69,6 +66,11 @@ public class MainActivity extends AppCompatActivity {
     private MediaPlayer rotationSoundPlayer;
     private MediaPlayer winSoundPlayer;
 
+    /**
+     * Saves the current game state before the activity is destroyed.
+     * This allows the game to be restored after configuration changes like screen rotation.
+     * @param outState Bundle in which to place the saved state
+     */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -77,8 +79,10 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Initializes the activity, sets up the UI, and starts a new game.
-     * @param savedInstanceState If the activity is being re-initialized, this Bundle
-     * contains the data it most recently supplied in onSaveInstanceState(Bundle).
+     * If the activity is being re-initialized after a configuration change (such as
+     * screen rotation), the saved game state is restored from the Bundle.
+     * @param savedInstanceState If the activity is being re-initialized after
+     * previously being shut down, this Bundle contains the saved game state
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +105,17 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Initialize colors from resources
+        defaultButtonBackgroundColor = ContextCompat.getColor(this, R.color.tile_background);
+        selectedButtonBackgroundColor = ContextCompat.getColor(this, R.color.selected_tile_background);
+
+        // Initialize flash colors from resources
+        flashColors[0] = ContextCompat.getColor(this, R.color.flash_green);
+        flashColors[1] = ContextCompat.getColor(this, R.color.flash_yellow);
+        flashColors[2] = ContextCompat.getColor(this, R.color.flash_magenta);
+        flashColors[3] = ContextCompat.getColor(this, R.color.flash_cyan);
+        flashColors[4] = ContextCompat.getColor(this, R.color.flash_red);
+
         // Initialize game components
         flashHandler = new Handler(Looper.getMainLooper());
         gridLayout = findViewById(R.id.grid);
@@ -109,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
         solutionDepthPicker.setMinValue(MIN_SOLUTION_DEPTH);
         solutionDepthPicker.setMaxValue(MAX_SOLUTION_DEPTH);
         solutionDepthPicker.setValue(DEFAULT_SOLUTION_DEPTH);
-        defaultButtonBackgroundColor = ContextCompat.getColor(this, R.color.colorPrimary);
 
         // Initialize sound effect
         initializeSoundEffect();
@@ -230,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
                 Button tileButton = new Button(this);
                 tileButton.setText(String.valueOf(currentGridState[r][c]));
                 tileButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
-                tileButton.setTextColor(ContextCompat.getColor(this, R.color.button_text_color));
+                tileButton.setTextColor(ContextCompat.getColor(this, R.color.tile_text_color));
 
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams();
                 params.width = 0;
@@ -286,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
         for (int i = anchorRow; i < anchorRow + SUBGRID_SIZE; i++) {
             for (int j = anchorCol; j < anchorCol + SUBGRID_SIZE; j++) {
                 if (gameButtons[i][j] != null) {
-                    gameButtons[i][j].setBackgroundColor(ContextCompat.getColor(this, R.color.colorAccent));
+                    gameButtons[i][j].setBackgroundColor(selectedButtonBackgroundColor);
                 }
             }
         }
@@ -396,10 +410,19 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Displays a congratulatory message and visual effect when the puzzle is solved.
-     * This method uses a Handler and a Runnable to create a flashing color effect on the grid buttons.
-     * The handler repeatedly executes the runnable, which changes the background color of the buttons
-     * to a new color from the flashColors array every FLASH_INTERVAL_MS milliseconds. This continues
-     * until the effect has flashed MAX_FLASH_COUNT times.
+     *
+     * This method creates a flashing color effect on the grid buttons using Android's
+     * Handler and Runnable mechanism for delayed execution:
+     *
+     * <ul>
+     * <li>The Handler schedules the Runnable to execute at regular intervals (FLASH_INTERVAL_MS)</li>
+     * <li>Each execution changes all button background colors to the next color in the sequence</li>
+     * <li>The Runnable reschedules itself using postDelayed() until MAX_FLASH_COUNT is reached</li>
+     * <li>Colors cycle through the flashColors array for a vibrant celebration effect</li>
+     * </ul>
+     *
+     * The grid buttons and undo button are disabled during the effect to prevent
+     * interaction while the celebration animation is playing.
      */
     private void showCongratulationsVisualEffect() {
         Toast.makeText(this, getString(R.string.congratulations), Toast.LENGTH_LONG).show();
@@ -446,11 +469,14 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         updateUndoButtonAndMenuState();
 
+        // Set menu item text colors using color resource
+        int menuTextColor = ContextCompat.getColor(this, R.color.menu_text_color);
+
         MenuItem aboutItem = menu.findItem(R.id.action_about);
         if (aboutItem != null) {
             String title = getString(R.string.about);
             SpannableString spannableString = new SpannableString(title);
-            spannableString.setSpan(new ForegroundColorSpan(Color.WHITE), 0, spannableString.length(), 0);
+            spannableString.setSpan(new ForegroundColorSpan(menuTextColor), 0, spannableString.length(), 0);
             aboutItem.setTitle(spannableString);
         }
 
@@ -458,7 +484,7 @@ public class MainActivity extends AppCompatActivity {
         if (exitItem != null) {
             String title = getString(R.string.exit);
             SpannableString spannableString = new SpannableString(title);
-            spannableString.setSpan(new ForegroundColorSpan(Color.WHITE), 0, spannableString.length(), 0);
+            spannableString.setSpan(new ForegroundColorSpan(menuTextColor), 0, spannableString.length(), 0);
             exitItem.setTitle(spannableString);
         }
         return true;

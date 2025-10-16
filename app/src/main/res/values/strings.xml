@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">hw2-Wight</string>
+    <string name="app_name">hw3-Wight</string>
     <string name="rotate_left">Rotate Left</string>
     <string name="rotate_right">Rotate Right</string>
     <string name="new_game">New Game</string>
@@ -7,7 +7,7 @@
     <string name="undo">Undo</string>
     <string name="about">About</string>
     <string name="exit">Exit</string>
-    <string name="about_message">Revolution Game - hw2-Wight\nDeveloped by Ethan Wight</string>
+    <string name="about_message">Revolution Game - hw3-Wight\nDeveloped by Ethan Wight</string>
     <string name="undo_error">Error: No moves to undo.</string>
     <string name="undo_success">Move undone.</string>
     <string name="exit_confirmation_message">Are you sure you want to exit?</string>
