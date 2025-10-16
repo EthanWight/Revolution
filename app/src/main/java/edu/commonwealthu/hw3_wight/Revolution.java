@@ -9,9 +9,12 @@ import java.util.Stack;
 
 /**
  * Implements the backend logic for the Revolution puzzle game. This class
- * manages the game'''s state, including the grid of numbers, move history, and
- * the rules for rotating subgrids. The game is won when the numbers are sorted
+ * manages the game's state, including the grid of numbers, move history, and
+ * the rules for rotating sub-grids. The game is won when the numbers are sorted
  * in ascending order.
+ *
+ * Enhanced with surrender mode that allows undoing through the scrambling sequence
+ * to reveal the solution.
  *
  * @author Ethan Wight
  */
@@ -21,9 +24,26 @@ public class Revolution implements Serializable {
     private final int rows;
     private final int cols;
     private final Stack<int[][]> moveHistory;
+    private final Stack<Move> scrambleMoves;
+    private boolean surrenderMode;
     private final Random random;
 
     private static final int DEFAULT_GRID_SIZE = 3;
+
+    /**
+     * Represents a single rotation move in the puzzle.
+     */
+    private static class Move implements Serializable {
+        final int row;
+        final int col;
+        final boolean isClockwise;
+
+        Move(int row, int col, boolean isClockwise) {
+            this.row = row;
+            this.col = col;
+            this.isClockwise = isClockwise;
+        }
+    }
 
     /**
      * Constructs a new Revolution game with a specified grid size and solution depth.
@@ -37,6 +57,8 @@ public class Revolution implements Serializable {
         this.cols = cols;
         this.grid = new int[rows][cols];
         this.moveHistory = new Stack<>();
+        this.scrambleMoves = new Stack<>();
+        this.surrenderMode = false;
         this.random = new Random();
 
         initializeGrid();
@@ -66,6 +88,7 @@ public class Revolution implements Serializable {
 
     /**
      * Scrambles the grid by applying a specified number of random rotations.
+     * Each rotation is recorded so it can be undone in surrender mode.
      *
      * @param solDepth The number of random rotations to apply.
      */
@@ -77,16 +100,21 @@ public class Revolution implements Serializable {
 
     /**
      * Performs a single random rotation on a valid 2x2 subgrid.
+     * The move is recorded in scrambleMoves for potential reversal in surrender mode.
      */
     private void randomRotation() {
         int anchorRow = random.nextInt(rows - 1);
         int anchorCol = random.nextInt(cols - 1);
+        boolean isClockwise = random.nextBoolean();
 
-        if (random.nextBoolean()) {
+        if (isClockwise) {
             rotateClockwise(anchorRow, anchorCol);
         } else {
             rotateCounterclockwise(anchorRow, anchorCol);
         }
+
+        // Record this scramble move for surrender mode
+        scrambleMoves.push(new Move(anchorRow, anchorCol, isClockwise));
     }
 
     /**
@@ -178,11 +206,30 @@ public class Revolution implements Serializable {
     }
 
     /**
+     * Enables surrender mode, allowing undo operations to go back through
+     * the scrambling sequence to reveal the solution.
+     */
+    public void enableSurrenderMode() {
+        surrenderMode = true;
+    }
+
+    /**
+     * Checks if surrender mode is currently enabled.
+     *
+     * @return True if surrender mode is active, false otherwise.
+     */
+    public boolean isSurrenderMode() {
+        return surrenderMode;
+    }
+
+    /**
      * Undoes the last move, reverting the grid to its previous state.
+     * In surrender mode, this can undo scramble moves to reveal the solution.
      *
      * @return True if the undo was successful, false if there are no moves to undo.
      */
     public boolean undo() {
+        // First, undo user moves
         if (!moveHistory.isEmpty()) {
             int[][] previousGrid = moveHistory.pop();
             for (int r = 0; r < rows; r++) {
@@ -190,16 +237,70 @@ public class Revolution implements Serializable {
             }
             return true;
         }
+        // In surrender mode, also undo scramble moves
+        else if (surrenderMode && !scrambleMoves.isEmpty()) {
+            Move move = scrambleMoves.pop();
+            // Reverse the rotation (clockwise becomes counter-clockwise and vice versa)
+            if (move.isClockwise) {
+                rotateCounterclockwise(move.row, move.col);
+            } else {
+                rotateClockwise(move.row, move.col);
+            }
+            return true;
+        }
         return false;
     }
 
     /**
-     * Returns the number of moves made so far.
+     * Checks if an undo operation is possible.
+     * In surrender mode, this includes scramble moves.
      *
-     * @return The size of the move history.
+     * @return True if undo is possible, false otherwise.
      */
-    public int moves() {
+    public boolean canUndo() {
+        return !moveHistory.isEmpty() || (surrenderMode && !scrambleMoves.isEmpty());
+    }
+
+    /**
+     * Returns the total number of undoes available.
+     * In surrender mode, this includes both user moves and scramble moves.
+     *
+     * @return The total number of undo operations available.
+     */
+    public int remainingUndos() {
+        if (surrenderMode) {
+            return moveHistory.size() + scrambleMoves.size();
+        }
         return moveHistory.size();
+    }
+
+    /**
+     * Returns the number of scramble moves remaining to undo in surrender mode.
+     *
+     * @return The number of scramble moves that can be undone.
+     */
+    public int remainingScrambleMoves() {
+        return scrambleMoves.size();
+    }
+
+    /**
+     * Automatically reveals the full solution by undoing all moves and scrambles.
+     * Only works in surrender mode.
+     *
+     * @return The number of moves undone, or -1 if not in surrender mode.
+     */
+    public int revealFullSolution() {
+        if (!surrenderMode) {
+            return -1;
+        }
+
+        int undoCount = 0;
+        while (canUndo()) {
+            if (undo()) {
+                undoCount++;
+            }
+        }
+        return undoCount;
     }
 
     /**

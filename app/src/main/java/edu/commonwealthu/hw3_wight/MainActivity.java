@@ -40,6 +40,8 @@ import com.google.android.material.appbar.MaterialToolbar;
  * game state interactions, and visual feedback for the player.
  * Supports 3×3, 3×4, and 4×4 grid sizes.
  *
+ * Enhanced with surrender mode that allows viewing the solution.
+ *
  * @author Ethan Wight
  */
 public class MainActivity extends AppCompatActivity {
@@ -74,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
     private Button undoButton;
     private int defaultButtonBackgroundColor;
     private int selectedButtonBackgroundColor;
+    private int surrenderModeBackgroundColor;
 
     // Animation state
     private boolean isAnimating = false;
@@ -127,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
         // Initialize colors
         defaultButtonBackgroundColor = ContextCompat.getColor(this, R.color.tile_background);
         selectedButtonBackgroundColor = ContextCompat.getColor(this, R.color.selected_tile_background);
+        surrenderModeBackgroundColor = ContextCompat.getColor(this, R.color.surrender_mode_background);
 
         flashColors[0] = ContextCompat.getColor(this, R.color.flash_green);
         flashColors[1] = ContextCompat.getColor(this, R.color.flash_yellow);
@@ -257,6 +261,7 @@ public class MainActivity extends AppCompatActivity {
         populateGrid();
         updateUndoButtonAndMenuState();
         setGridButtonsEnabled(true);
+        updateSurrenderModeUI();
     }
 
     private void populateGrid() {
@@ -279,7 +284,13 @@ public class MainActivity extends AppCompatActivity {
                 tileButton.setText(String.valueOf(currentGridState[r][c]));
                 tileButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
                 tileButton.setTextColor(ContextCompat.getColor(this, R.color.tile_text_color));
-                tileButton.setBackgroundColor(defaultButtonBackgroundColor);
+
+                // Use different color if in surrender mode
+                if (game.isSurrenderMode()) {
+                    tileButton.setBackgroundColor(surrenderModeBackgroundColor);
+                } else {
+                    tileButton.setBackgroundColor(defaultButtonBackgroundColor);
+                }
 
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams();
                 params.width = buttonSize;
@@ -337,10 +348,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void clearSubgridHighlight() {
+        int baseColor = game.isSurrenderMode() ? surrenderModeBackgroundColor : defaultButtonBackgroundColor;
         for (int i = 0; i < currentRows; i++) {
             for (int j = 0; j < currentCols; j++) {
                 if (gameButtons[i][j] != null) {
-                    gameButtons[i][j].setBackgroundColor(defaultButtonBackgroundColor);
+                    gameButtons[i][j].setBackgroundColor(baseColor);
                 }
             }
         }
@@ -517,7 +529,7 @@ public class MainActivity extends AppCompatActivity {
     private void setControlsEnabled(boolean enabled) {
         rotateLeftButton.setEnabled(enabled);
         rotateRightButton.setEnabled(enabled);
-        undoButton.setEnabled(enabled && game.moves() > 0);
+        undoButton.setEnabled(enabled && game.canUndo());
         setGridButtonsEnabled(enabled);
     }
 
@@ -535,13 +547,29 @@ public class MainActivity extends AppCompatActivity {
         selectedAnchorRow = -1;
         selectedAnchorCol = -1;
         updateUndoButtonAndMenuState();
-        Toast.makeText(this, getString(R.string.undo_success), Toast.LENGTH_SHORT).show();
+
+        String message = game.isSurrenderMode() && game.remainingScrambleMoves() > 0
+                ? getString(R.string.undo_surrender_success, game.remainingUndos())
+                : getString(R.string.undo_success);
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+
+        // Check if we've reached the solved state
+        if (game.isOver()) {
+            showCongratulationsVisualEffect();
+        }
     }
 
     private void updateUndoButtonAndMenuState() {
-        boolean canUndo = game != null && game.moves() > 0;
+        boolean canUndo = game != null && game.canUndo();
         if (undoButton != null) {
             undoButton.setEnabled(canUndo && !isAnimating);
+
+            // Update button text to show remaining undos in surrender mode
+            if (game != null && game.isSurrenderMode() && canUndo) {
+                undoButton.setText(getString(R.string.undo_with_count, game.remainingUndos()));
+            } else {
+                undoButton.setText(getString(R.string.undo));
+            }
         }
     }
 
@@ -554,6 +582,47 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    private void showSurrenderDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.surrender_title)
+                .setMessage(R.string.surrender_message)
+                .setPositiveButton(R.string.surrender_step_by_step, (dialog, which) -> {
+                    game.enableSurrenderMode();
+                    updateSurrenderModeUI();
+                    updateUndoButtonAndMenuState();
+                    Toast.makeText(this, getString(R.string.surrender_mode_enabled,
+                            game.remainingUndos()), Toast.LENGTH_LONG).show();
+                })
+                .setNeutralButton(R.string.surrender_show_all, (dialog, which) -> {
+                    game.enableSurrenderMode();
+                    int undoCount = game.revealFullSolution();
+                    updateGridNumbers();
+                    updateSurrenderModeUI();
+                    updateUndoButtonAndMenuState();
+                    Toast.makeText(this, getString(R.string.solution_revealed, undoCount),
+                            Toast.LENGTH_LONG).show();
+                    if (game.isOver()) {
+                        showCongratulationsVisualEffect();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void updateSurrenderModeUI() {
+        // Update toolbar title to indicate surrender mode
+        if (getSupportActionBar() != null) {
+            if (game.isSurrenderMode()) {
+                getSupportActionBar().setTitle(R.string.app_name_surrender);
+            } else {
+                getSupportActionBar().setTitle(R.string.app_name);
+            }
+        }
+
+        // Update grid colors
+        populateGrid();
     }
 
     private void showCongratulationsVisualEffect() {
@@ -597,6 +666,14 @@ public class MainActivity extends AppCompatActivity {
 
         int menuTextColor = ContextCompat.getColor(this, R.color.menu_text_color);
 
+        MenuItem surrenderItem = menu.findItem(R.id.action_surrender);
+        if (surrenderItem != null) {
+            String title = getString(R.string.surrender);
+            SpannableString spannableString = new SpannableString(title);
+            spannableString.setSpan(new ForegroundColorSpan(menuTextColor), 0, spannableString.length(), 0);
+            surrenderItem.setTitle(spannableString);
+        }
+
         MenuItem aboutItem = menu.findItem(R.id.action_about);
         if (aboutItem != null) {
             String title = getString(R.string.about);
@@ -616,9 +693,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem surrenderItem = menu.findItem(R.id.action_surrender);
+        if (surrenderItem != null) {
+            // Disable surrender option if already in surrender mode
+            surrenderItem.setEnabled(!game.isSurrenderMode());
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
-        if (itemId == R.id.action_about) {
+        if (itemId == R.id.action_surrender) {
+            showSurrenderDialog();
+            return true;
+        } else if (itemId == R.id.action_about) {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.about)
                     .setMessage(R.string.about_message)
