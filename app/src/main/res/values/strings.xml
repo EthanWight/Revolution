@@ -4,10 +4,11 @@
     <string name="rotate_right">Rotate Right</string>
     <string name="new_game">New Game</string>
     <string name="solution_depth">Solution Depth:</string>
+    <string name="grid_size">Grid Size:</string>
     <string name="undo">Undo</string>
     <string name="about">About</string>
     <string name="exit">Exit</string>
-    <string name="about_message">Revolution Game - hw3-Wight\nDeveloped by Ethan Wight</string>
+    <string name="about_message">Revolution Game - hw3-Wight\nDeveloped by Ethan Wight\n\nSupports 3×3, 3×4, and 4×4 grids</string>
     <string name="undo_error">Error: No moves to undo.</string>
     <string name="undo_success">Move undone.</string>
     <string name="exit_confirmation_message">Are you sure you want to exit?</string>
@@ -15,4 +16,11 @@
     <string name="invalid_tile_selection">Invalid tile. Click a rotation button or select a new anchor.</string>
     <string name="select_subgrid_prompt">Select a tile that can be the top-left of a 2x2 subgrid.</string>
     <string name="subgrid_selection_prompt">Please select a 2x2 subgrid to rotate first.</string>
+
+    <!-- Grid size options -->
+    <string-array name="grid_sizes">
+        <item>3×3</item>
+        <item>3×4</item>
+        <item>4×4</item>
+    </string-array>
 </resources>

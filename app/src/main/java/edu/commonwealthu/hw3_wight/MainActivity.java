@@ -9,9 +9,14 @@ import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.NumberPicker;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -27,6 +32,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 /**
  * Plays the Revolution puzzle game. This class manages the user interface,
  * game state interactions, and visual feedback for the player.
+ * Supports 3×3, 3×4, and 4×4 grid sizes.
  *
  * @author Ethan Wight
  */
@@ -37,11 +43,19 @@ public class MainActivity extends AppCompatActivity {
     private Button[][] gameButtons;
 
     private static final String GAME_STATE = "gameState";
+    private static final String GRID_ROWS = "gridRows";
+    private static final String GRID_COLS = "gridCols";
+    private static final String SELECTED_GRID_SIZE = "selectedGridSize";
     private static final int DEFAULT_SOLUTION_DEPTH = 5;
     private static final int MIN_SOLUTION_DEPTH = 1;
     private static final int MAX_SOLUTION_DEPTH = 20;
-    private static final int GRID_SIZE = 3;
+    private static final int DEFAULT_GRID_ROWS = 3;
+    private static final int DEFAULT_GRID_COLS = 3;
     private static final int SUBGRID_SIZE = 2;
+
+    // Current grid dimensions
+    private int currentRows = DEFAULT_GRID_ROWS;
+    private int currentCols = DEFAULT_GRID_COLS;
 
     private int selectedAnchorRow = -1;
     private int selectedAnchorCol = -1;
@@ -49,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private Button rotateLeftButton;
     private Button rotateRightButton;
     private NumberPicker solutionDepthPicker;
+    private Spinner gridSizeSpinner;
     private Button undoButton;
     private int defaultButtonBackgroundColor;
     private int selectedButtonBackgroundColor;
@@ -56,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     // For flashing visual effect
     private Handler flashHandler;
     private Runnable flashRunnable;
-    private final int[] flashColors = new int[5]; // Will be populated from resources
+    private final int[] flashColors = new int[5];
     private int flashColorIndex = 0;
     private int flashCount = 0;
     private static final int MAX_FLASH_COUNT = 10;
@@ -66,24 +81,15 @@ public class MainActivity extends AppCompatActivity {
     private MediaPlayer rotationSoundPlayer;
     private MediaPlayer winSoundPlayer;
 
-    /**
-     * Saves the current game state before the activity is destroyed.
-     * This allows the game to be restored after configuration changes like screen rotation.
-     * @param outState Bundle in which to place the saved state
-     */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable(GAME_STATE, game);
+        outState.putInt(GRID_ROWS, currentRows);
+        outState.putInt(GRID_COLS, currentCols);
+        outState.putInt(SELECTED_GRID_SIZE, gridSizeSpinner.getSelectedItemPosition());
     }
 
-    /**
-     * Initializes the activity, sets up the UI, and starts a new game.
-     * If the activity is being re-initialized after a configuration change (such as
-     * screen rotation), the saved game state is restored from the Bundle.
-     * @param savedInstanceState If the activity is being re-initialized after
-     * previously being shut down, this Bundle contains the saved game state
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,30 +111,29 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Initialize colors from resources
+        // Initialize colors
         defaultButtonBackgroundColor = ContextCompat.getColor(this, R.color.tile_background);
         selectedButtonBackgroundColor = ContextCompat.getColor(this, R.color.selected_tile_background);
 
-        // Initialize flash colors from resources
         flashColors[0] = ContextCompat.getColor(this, R.color.flash_green);
         flashColors[1] = ContextCompat.getColor(this, R.color.flash_yellow);
         flashColors[2] = ContextCompat.getColor(this, R.color.flash_magenta);
         flashColors[3] = ContextCompat.getColor(this, R.color.flash_cyan);
         flashColors[4] = ContextCompat.getColor(this, R.color.flash_red);
 
-        // Initialize game components
+        // Initialize components
         flashHandler = new Handler(Looper.getMainLooper());
         gridLayout = findViewById(R.id.grid);
-        gameButtons = new Button[GRID_SIZE][GRID_SIZE];
         solutionDepthPicker = findViewById(R.id.solutionDepthPicker);
         solutionDepthPicker.setMinValue(MIN_SOLUTION_DEPTH);
         solutionDepthPicker.setMaxValue(MAX_SOLUTION_DEPTH);
         solutionDepthPicker.setValue(DEFAULT_SOLUTION_DEPTH);
 
-        // Initialize sound effect
+        gridSizeSpinner = findViewById(R.id.gridSizeSpinner);
+        setupGridSizeSpinner();
+
         initializeSoundEffect();
 
-        // Setup UI controls and listeners
         Button newGameButton = findViewById(R.id.newGameButton);
         newGameButton.setOnClickListener(v -> startNewGame(solutionDepthPicker.getValue()));
         undoButton = findViewById(R.id.undoButton);
@@ -136,50 +141,71 @@ public class MainActivity extends AppCompatActivity {
         rotateLeftButton = findViewById(R.id.rotateLeftButton);
         rotateRightButton = findViewById(R.id.rotateRightButton);
 
-        // Rotation controls are now always visible in both portrait and landscape
-
         setupRotationButtons();
 
         if (savedInstanceState != null) {
+            currentRows = savedInstanceState.getInt(GRID_ROWS, DEFAULT_GRID_ROWS);
+            currentCols = savedInstanceState.getInt(GRID_COLS, DEFAULT_GRID_COLS);
+            int selectedPosition = savedInstanceState.getInt(SELECTED_GRID_SIZE, 0);
+            gridSizeSpinner.setSelection(selectedPosition);
             game = (Revolution) savedInstanceState.getSerializable(GAME_STATE);
+            gameButtons = new Button[currentRows][currentCols];
             populateGrid();
             updateUndoButtonAndMenuState();
         } else {
-            // Start the first game
             startNewGame(solutionDepthPicker.getValue());
         }
     }
 
-    /**
-     * Initializes the sound effects for rotations and winning.
-     */
+    private void setupGridSizeSpinner() {
+        String[] gridSizes = getResources().getStringArray(R.array.grid_sizes);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, gridSizes);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        gridSizeSpinner.setAdapter(adapter);
+
+        gridSizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+                        currentRows = 3;
+                        currentCols = 3;
+                        break;
+                    case 1:
+                        currentRows = 3;
+                        currentCols = 4;
+                        break;
+                    case 2:
+                        currentRows = 4;
+                        currentCols = 4;
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+    }
+
     private void initializeSoundEffect() {
         try {
             rotationSoundPlayer = MediaPlayer.create(this, R.raw.rotation_sound);
             if (rotationSoundPlayer != null) {
-                rotationSoundPlayer.setOnCompletionListener(mp -> {
-                    // Reset the player to be ready for next play
-                    mp.seekTo(0);
-                });
+                rotationSoundPlayer.setOnCompletionListener(mp -> mp.seekTo(0));
             }
 
             winSoundPlayer = MediaPlayer.create(this, R.raw.win_sound);
             if (winSoundPlayer != null) {
-                winSoundPlayer.setOnCompletionListener(mp -> {
-                    // Reset the player to be ready for next play
-                    mp.seekTo(0);
-                });
+                winSoundPlayer.setOnCompletionListener(mp -> mp.seekTo(0));
             }
         } catch (Exception e) {
-            // If sound initialization fails, continue without sound
             rotationSoundPlayer = null;
             winSoundPlayer = null;
         }
     }
 
-    /**
-     * Plays the rotation sound effect.
-     */
     private void playRotationSound() {
         if (rotationSoundPlayer != null) {
             try {
@@ -189,14 +215,10 @@ public class MainActivity extends AppCompatActivity {
                     rotationSoundPlayer.start();
                 }
             } catch (Exception e) {
-                // Silently fail if sound cannot be played
             }
         }
     }
 
-    /**
-     * Plays the win sound effect.
-     */
     private void playWinSound() {
         if (winSoundPlayer != null) {
             try {
@@ -206,51 +228,49 @@ public class MainActivity extends AppCompatActivity {
                     winSoundPlayer.start();
                 }
             } catch (Exception e) {
-                // Silently fail if sound cannot be played
             }
         }
     }
 
-    /**
-     * Starts a new game with a specified solution depth.
-     * @param solDepth The number of random moves to make to scramble the puzzle.
-     */
     private void startNewGame(int solDepth) {
         if (flashHandler != null && flashRunnable != null) {
             flashHandler.removeCallbacks(flashRunnable);
         }
 
-        game = new Revolution(solDepth);
+        game = new Revolution(currentRows, currentCols, solDepth);
         selectedAnchorRow = -1;
         selectedAnchorCol = -1;
+        gameButtons = new Button[currentRows][currentCols];
         populateGrid();
         updateUndoButtonAndMenuState();
         setGridButtonsEnabled(true);
     }
 
-    /**
-     * Creates and populates the grid of buttons with numbers from the game state.
-     */
     private void populateGrid() {
         gridLayout.removeAllViews();
-        gridLayout.setColumnCount(GRID_SIZE);
-        gridLayout.setRowCount(GRID_SIZE);
+        gridLayout.setColumnCount(currentCols);
+        gridLayout.setRowCount(currentRows);
         int[][] currentGridState = game.getGrid();
-        int margin = getResources().getDimensionPixelSize(R.dimen.small_margin);
-        float textSize = getResources().getDimension(R.dimen.tile_text_size);
 
-        for (int r = 0; r < GRID_SIZE; r++) {
-            for (int c = 0; c < GRID_SIZE; c++) {
+        // Calculate button size based on grid dimensions
+        int screenWidth = getResources().getDisplayMetrics().widthPixels;
+        int maxGridWidth = Math.min(screenWidth - 100, 800); // Max 800dp width
+        int buttonSize = (maxGridWidth - 40) / Math.max(currentRows, currentCols);
+
+        int margin = 4;
+        float textSize = buttonSize / 3f;
+
+        for (int r = 0; r < currentRows; r++) {
+            for (int c = 0; c < currentCols; c++) {
                 Button tileButton = new Button(this);
                 tileButton.setText(String.valueOf(currentGridState[r][c]));
                 tileButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
                 tileButton.setTextColor(ContextCompat.getColor(this, R.color.tile_text_color));
+                tileButton.setBackgroundColor(defaultButtonBackgroundColor);
 
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-                params.width = 0;
-                params.height = 0;
-                params.rowSpec = GridLayout.spec(r, 1f);
-                params.columnSpec = GridLayout.spec(c, 1f);
+                params.width = buttonSize;
+                params.height = buttonSize;
                 params.setMargins(margin, margin, margin, margin);
                 tileButton.setLayoutParams(params);
 
@@ -261,16 +281,14 @@ public class MainActivity extends AppCompatActivity {
                 gridLayout.addView(tileButton);
             }
         }
+
+        // Force layout update
+        gridLayout.requestLayout();
         clearSubgridHighlight();
     }
 
-    /**
-     * Handles clicks on the grid tiles, selecting or deselecting a 2x2 subgrid anchor.
-     * @param r The row of the clicked tile.
-     * @param c The column of the clicked tile.
-     */
     private void onTileClicked(int r, int c) {
-        boolean isAnchor = r < GRID_SIZE - 1 && c < GRID_SIZE - 1;
+        boolean isAnchor = r < currentRows - 1 && c < currentCols - 1;
 
         if (isAnchor) {
             if (selectedAnchorRow == r && selectedAnchorCol == c) {
@@ -290,11 +308,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Highlights the 2x2 subgrid starting at the given anchor coordinates.
-     * @param anchorRow The top row of the subgrid.
-     * @param anchorCol The left column of the subgrid.
-     */
     private void highlightSubgrid(int anchorRow, int anchorCol) {
         clearSubgridHighlight();
         for (int i = anchorRow; i < anchorRow + SUBGRID_SIZE; i++) {
@@ -306,12 +319,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Resets the background color of all grid buttons to the default.
-     */
     private void clearSubgridHighlight() {
-        for (int i = 0; i < GRID_SIZE; i++) {
-            for (int j = 0; j < GRID_SIZE; j++) {
+        for (int i = 0; i < currentRows; i++) {
+            for (int j = 0; j < currentCols; j++) {
                 if (gameButtons[i][j] != null) {
                     gameButtons[i][j].setBackgroundColor(defaultButtonBackgroundColor);
                 }
@@ -319,13 +329,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Enables or disables all buttons in the grid.
-     * @param enabled True to enable the buttons, false to disable.
-     */
     private void setGridButtonsEnabled(boolean enabled) {
-        for (int i = 0; i < GRID_SIZE; i++) {
-            for (int j = 0; j < GRID_SIZE; j++) {
+        for (int i = 0; i < currentRows; i++) {
+            for (int j = 0; j < currentCols; j++) {
                 if (gameButtons[i][j] != null) {
                     gameButtons[i][j].setEnabled(enabled);
                 }
@@ -333,21 +339,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Sets up the click listeners for the left and right rotation buttons.
-     */
     private void setupRotationButtons() {
         rotateLeftButton.setOnClickListener(v -> rotateSelectedSubgrid(true));
         rotateRightButton.setOnClickListener(v -> rotateSelectedSubgrid(false));
     }
 
-    /**
-     * Rotates the currently selected subgrid.
-     * @param isLeftRotation True for a left rotation, false for a right rotation.
-     */
     private void rotateSelectedSubgrid(boolean isLeftRotation) {
         if (selectedAnchorRow != -1 && selectedAnchorCol != -1) {
-            // Play sound effect before rotation
             playRotationSound();
 
             if (isLeftRotation) {
@@ -368,9 +366,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Undoes the last move made in the game.
-     */
     private void performUndo() {
         if (!game.undo()) {
             Toast.makeText(this, getString(R.string.undo_error), Toast.LENGTH_SHORT).show();
@@ -384,9 +379,6 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, getString(R.string.undo_success), Toast.LENGTH_SHORT).show();
     }
 
-    /**
-     * Updates the enabled state of the undo button based on the game state.
-     */
     private void updateUndoButtonAndMenuState() {
         boolean canUndo = game != null && game.moves() > 0;
         if (undoButton != null) {
@@ -394,13 +386,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Refreshes the numbers displayed on the grid buttons from the game state.
-     */
     private void updateGridNumbers() {
         int[][] currentGridState = game.getGrid();
-        for (int r = 0; r < GRID_SIZE; r++) {
-            for (int c = 0; c < GRID_SIZE; c++) {
+        for (int r = 0; r < currentRows; r++) {
+            for (int c = 0; c < currentCols; c++) {
                 if (gameButtons[r][c] != null) {
                     gameButtons[r][c].setText(String.valueOf(currentGridState[r][c]));
                 }
@@ -408,28 +397,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Displays a congratulatory message and visual effect when the puzzle is solved.
-     *
-     * This method creates a flashing color effect on the grid buttons using Android's
-     * Handler and Runnable mechanism for delayed execution:
-     *
-     * <ul>
-     * <li>The Handler schedules the Runnable to execute at regular intervals (FLASH_INTERVAL_MS)</li>
-     * <li>Each execution changes all button background colors to the next color in the sequence</li>
-     * <li>The Runnable reschedules itself using postDelayed() until MAX_FLASH_COUNT is reached</li>
-     * <li>Colors cycle through the flashColors array for a vibrant celebration effect</li>
-     * </ul>
-     *
-     * The grid buttons and undo button are disabled during the effect to prevent
-     * interaction while the celebration animation is playing.
-     */
     private void showCongratulationsVisualEffect() {
         Toast.makeText(this, getString(R.string.congratulations), Toast.LENGTH_LONG).show();
         setGridButtonsEnabled(false);
         undoButton.setEnabled(false);
 
-        // Play win sound
         playWinSound();
 
         flashCount = 0;
@@ -443,8 +415,8 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 int currentColor = flashColors[flashColorIndex % flashColors.length];
-                for (int i = 0; i < GRID_SIZE; i++) {
-                    for (int j = 0; j < GRID_SIZE; j++) {
+                for (int i = 0; i < currentRows; i++) {
+                    for (int j = 0; j < currentCols; j++) {
                         if (gameButtons[i][j] != null) {
                             gameButtons[i][j].setBackgroundColor(currentColor);
                         }
@@ -459,17 +431,11 @@ public class MainActivity extends AppCompatActivity {
         flashHandler.postDelayed(flashRunnable, FLASH_INTERVAL_MS);
     }
 
-    /**
-     * Inflates the options menu.
-     * @param menu The options menu in which you place your items.
-     * @return You must return true for the menu to be displayed.
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         updateUndoButtonAndMenuState();
 
-        // Set menu item text colors using color resource
         int menuTextColor = ContextCompat.getColor(this, R.color.menu_text_color);
 
         MenuItem aboutItem = menu.findItem(R.id.action_about);
@@ -490,12 +456,6 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    /**
-     * Handles selections from the options menu.
-     * @param item The menu item that was selected.
-     * @return boolean Return false to allow normal menu processing to
-     *         proceed, true to consume it here.
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
@@ -518,9 +478,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Cleans up resources when the activity is destroyed.
-     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -528,7 +485,6 @@ public class MainActivity extends AppCompatActivity {
             flashHandler.removeCallbacks(flashRunnable);
         }
 
-        // Release sound resources
         if (rotationSoundPlayer != null) {
             rotationSoundPlayer.release();
             rotationSoundPlayer = null;
@@ -539,9 +495,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Pauses audio when activity is paused.
-     */
     @Override
     protected void onPause() {
         super.onPause();

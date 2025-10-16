@@ -23,54 +23,74 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Grid takes up left side, properly constrained -->
-    <GridLayout
-        android:id="@+id/grid"
+    <!-- Grid on left side -->
+    <FrameLayout
+        android:id="@+id/gridContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:columnCount="3"
-        android:rowCount="3"
         android:padding="@dimen/medium_margin"
-        android:layout_marginStart="@dimen/medium_margin"
-        android:layout_marginEnd="@dimen/medium_margin"
-        android:layout_marginTop="@dimen/medium_margin"
-        android:layout_marginBottom="@dimen/medium_margin"
-        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/controlsContainer"
-        app:layout_constraintWidth_max="400dp"
-        app:layout_constraintHeight_max="400dp"
-        app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintHorizontal_weight="1">
 
+        <GridLayout
+            android:id="@+id/grid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:columnCount="3"
+            android:rowCount="3"
+            android:padding="@dimen/small_margin" />
+    </FrameLayout>
 
-    <!-- Horizontal container for picker and buttons -->
+    <!-- Controls on right side -->
     <LinearLayout
         android:id="@+id/controlsContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:baselineAligned="false"
         android:orientation="horizontal"
         android:gravity="center"
-        android:paddingStart="@dimen/medium_margin"
-        android:paddingEnd="@dimen/medium_margin"
-        android:paddingTop="@dimen/medium_margin"
-        android:paddingBottom="@dimen/medium_margin"
+        android:padding="@dimen/medium_margin"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/grid"
+        app:layout_constraintStart_toEndOf="@id/gridContainer"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintWidth_min="200dp"
-        app:layout_constraintVertical_bias="0.5">
+        app:layout_constraintHorizontal_weight="1">
 
-        <!-- Picker with centered label -->
+        <!-- Grid Size Selector Column -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center">
+            android:gravity="center"
+            android:layout_marginEnd="@dimen/small_margin">
+
+            <TextView
+                android:id="@+id/gridSizeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/grid_size"
+                android:textSize="@dimen/landscape_button_text_size"
+                android:layout_marginBottom="@dimen/tiny_margin"
+                android:gravity="center" />
+
+            <Spinner
+                android:id="@+id/gridSizeSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="80dp"
+                android:minHeight="@dimen/button_min_height"/>
+        </LinearLayout>
+
+        <!-- Picker Column -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginEnd="@dimen/small_margin">
 
             <TextView
                 android:id="@+id/solutionDepthLabel"
@@ -89,73 +109,69 @@
                 android:scaleY="0.75" />
         </LinearLayout>
 
-        <!-- 2x2 Grid of buttons to the right of picker -->
+        <!-- 2x2 Button Grid -->
         <GridLayout
             android:id="@+id/rotationControlsLayout"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:columnCount="2"
-            android:rowCount="2"
-            android:layout_marginStart="@dimen/medium_margin"
-            android:alignmentMode="alignBounds"
-            android:columnOrderPreserved="false">
+            android:rowCount="2">
 
             <Button
                 android:id="@+id/newGameButton"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_row="0"
                 android:layout_column="0"
-                android:layout_columnWeight="1"
                 android:layout_margin="@dimen/tiny_margin"
                 android:textColor="@color/button_text_color"
                 android:text="@string/new_game"
                 android:textSize="@dimen/landscape_button_text_size"
                 android:minHeight="@dimen/button_min_height"
-                android:padding="@dimen/small_margin" />
+                android:paddingStart="@dimen/small_margin"
+                android:paddingEnd="@dimen/small_margin" />
 
             <Button
                 android:id="@+id/undoButton"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_row="0"
                 android:layout_column="1"
-                android:layout_columnWeight="1"
                 android:layout_margin="@dimen/tiny_margin"
                 android:textColor="@color/button_text_color"
                 android:text="@string/undo"
                 android:textSize="@dimen/landscape_button_text_size"
                 android:minHeight="@dimen/button_min_height"
-                android:padding="@dimen/small_margin" />
+                android:paddingStart="@dimen/small_margin"
+                android:paddingEnd="@dimen/small_margin" />
 
             <Button
                 android:id="@+id/rotateLeftButton"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_row="1"
                 android:layout_column="0"
-                android:layout_columnWeight="1"
                 android:layout_margin="@dimen/tiny_margin"
                 android:textColor="@color/button_text_color"
                 android:text="@string/rotate_left"
                 android:textSize="@dimen/landscape_button_text_size"
                 android:minHeight="@dimen/button_min_height"
-                android:padding="@dimen/small_margin" />
+                android:paddingStart="@dimen/small_margin"
+                android:paddingEnd="@dimen/small_margin" />
 
             <Button
                 android:id="@+id/rotateRightButton"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_row="1"
                 android:layout_column="1"
-                android:layout_columnWeight="1"
                 android:layout_margin="@dimen/tiny_margin"
                 android:textColor="@color/button_text_color"
                 android:text="@string/rotate_right"
                 android:textSize="@dimen/landscape_button_text_size"
                 android:minHeight="@dimen/button_min_height"
-                android:padding="@dimen/small_margin" />
+                android:paddingStart="@dimen/small_margin"
+                android:paddingEnd="@dimen/small_margin" />
         </GridLayout>
     </LinearLayout>
 

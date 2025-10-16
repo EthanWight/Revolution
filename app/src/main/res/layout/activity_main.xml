@@ -30,22 +30,45 @@
         app:layout_constraintTop_toBottomOf="@id/appBarLayout"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="@dimen/large_margin">
+            android:orientation="vertical"
+            android:padding="@dimen/large_margin"
+            android:gravity="center_horizontal">
 
-            <GridLayout
-                android:id="@+id/grid"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:columnCount="3"
-                android:rowCount="3"
-                android:padding="@dimen/large_margin"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+            <!-- Grid Size Spinner -->
+            <TextView
+                android:id="@+id/gridSizeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/grid_size"
+                android:textSize="@dimen/label_text_size"
+                android:layout_marginBottom="@dimen/small_margin" />
+
+            <Spinner
+                android:id="@+id/gridSizeSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="200dp"
+                android:minHeight="@dimen/button_min_height"
+                android:layout_marginBottom="@dimen/medium_margin" />
+
+            <!-- Game Grid - Using FrameLayout wrapper for better sizing -->
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/medium_margin">
+
+                <GridLayout
+                    android:id="@+id/grid"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:columnCount="3"
+                    android:padding="@dimen/small_margin"
+                    android:rowCount="3" />
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/solutionDepthLabel"
@@ -54,106 +77,74 @@
                 android:text="@string/solution_depth"
                 android:textSize="@dimen/label_text_size"
                 android:layout_marginTop="@dimen/medium_margin"
-                android:layout_marginBottom="@dimen/small_margin"
-                app:layout_constraintTop_toBottomOf="@id/grid"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                android:layout_marginBottom="@dimen/small_margin" />
 
             <NumberPicker
                 android:id="@+id/solutionDepthPicker"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/small_margin"
-                app:layout_constraintTop_toBottomOf="@id/solutionDepthLabel"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                android:layout_marginBottom="@dimen/medium_margin" />
 
             <LinearLayout
                 android:id="@+id/rotationControlsLayout"
-                android:buttonBarStyle="?android:attr/buttonBarStyle"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="@dimen/medium_margin"
-                android:layout_marginStart="@dimen/large_margin"
-                android:layout_marginEnd="@dimen/large_margin"
-                android:visibility="visible"
-                app:layout_constraintTop_toBottomOf="@id/solutionDepthPicker"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:layout_marginBottom="@dimen/small_margin">
 
                 <Button
                     android:id="@+id/rotateLeftButton"
-                    android:buttonBarStyle="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/small_margin"
                     android:textColor="@color/button_text_color"
                     android:text="@string/rotate_left"
                     android:textSize="@dimen/button_text_size"
-                    android:minHeight="@dimen/button_min_height"
-                    android:padding="@dimen/button_padding" />
-
-                <Space
-                    android:layout_width="@dimen/medium_margin"
-                    android:layout_height="wrap_content" />
+                    android:minHeight="@dimen/button_min_height" />
 
                 <Button
                     android:id="@+id/rotateRightButton"
-                    android:buttonBarStyle="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_marginStart="@dimen/small_margin"
                     android:textColor="@color/button_text_color"
                     android:text="@string/rotate_right"
                     android:textSize="@dimen/button_text_size"
-                    android:minHeight="@dimen/button_min_height"
-                    android:padding="@dimen/button_padding" />
+                    android:minHeight="@dimen/button_min_height" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/game_controls"
-                android:buttonBarStyle="?android:attr/buttonBarStyle"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="@dimen/large_margin"
-                android:layout_marginEnd="@dimen/large_margin"
-                android:layout_marginTop="@dimen/medium_margin"
-                app:layout_constraintTop_toBottomOf="@id/rotationControlsLayout"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/newGameButton"
-                    android:buttonBarStyle="?android:attr/buttonBarButtonStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_marginEnd="@dimen/small_margin"
                     android:textColor="@color/button_text_color"
                     android:text="@string/new_game"
                     android:textSize="@dimen/button_text_size"
-                    android:minHeight="@dimen/button_min_height"
-                    android:padding="@dimen/button_padding" />
-
-                <Space
-                    android:layout_width="@dimen/medium_margin"
-                    android:layout_height="wrap_content" />
+                    android:minHeight="@dimen/button_min_height" />
 
                 <Button
                     android:id="@+id/undoButton"
-                    android:buttonBarStyle="?android:attr/buttonBarButtonStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:layout_marginStart="@dimen/small_margin"
                     android:textColor="@color/button_text_color"
                     android:text="@string/undo"
                     android:textSize="@dimen/button_text_size"
-                    android:minHeight="@dimen/button_min_height"
-                    android:padding="@dimen/button_padding" />
+                    android:minHeight="@dimen/button_min_height" />
             </LinearLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
     </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
