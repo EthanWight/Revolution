@@ -25,4 +25,11 @@
     <color name="flash_magenta">#E91E63</color>
     <color name="flash_cyan">#00BCD4</color>
     <color name="flash_red">#F44336</color>
+
+    <!-- Milestone colors -->
+    <color name="milestone_achieved">#4CAF50</color>
+    <color name="milestone_unachieved">#9E9E9E</color>
+    <color name="milestone_text">#212121</color>
+    <color name="milestone_description">#757575</color>
+    <color name="milestone_reset">#F44336</color>
 </resources>

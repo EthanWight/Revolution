@@ -4,6 +4,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.Animator;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -40,7 +41,8 @@ import com.google.android.material.appbar.MaterialToolbar;
  * game state interactions, and visual feedback for the player.
  * Supports 3×3, 3×4, and 4×4 grid sizes.
  *
- * Enhanced with surrender mode that allows viewing the solution.
+ * Enhanced with surrender mode that allows viewing the solution and
+ * milestones tracking for achievements.
  *
  * @author Ethan Wight
  */
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private Revolution game;
     private GridLayout gridLayout;
     private Button[][] gameButtons;
+    private MilestonesManager milestonesManager;
 
     private static final String GAME_STATE = "gameState";
     private static final String GRID_ROWS = "gridRows";
@@ -65,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     // Current grid dimensions
     private int currentRows = DEFAULT_GRID_ROWS;
     private int currentCols = DEFAULT_GRID_COLS;
+    private int currentSolutionDepth = DEFAULT_SOLUTION_DEPTH;
 
     private int selectedAnchorRow = -1;
     private int selectedAnchorCol = -1;
@@ -127,6 +131,9 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Initialize milestones manager
+        milestonesManager = new MilestonesManager(this);
+
         // Initialize colors
         defaultButtonBackgroundColor = ContextCompat.getColor(this, R.color.tile_background);
         selectedButtonBackgroundColor = ContextCompat.getColor(this, R.color.selected_tile_background);
@@ -172,6 +179,13 @@ public class MainActivity extends AppCompatActivity {
         } else {
             startNewGame(solutionDepthPicker.getValue());
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh menu to update milestone indicator if needed
+        invalidateOptionsMenu();
     }
 
     private void setupGridSizeSpinner() {
@@ -254,6 +268,7 @@ public class MainActivity extends AppCompatActivity {
             flashHandler.removeCallbacks(flashRunnable);
         }
 
+        currentSolutionDepth = solDepth;
         game = new Revolution(currentRows, currentCols, solDepth);
         selectedAnchorRow = -1;
         selectedAnchorCol = -1;
@@ -464,7 +479,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Check for win condition
                 if (game.isOver()) {
-                    showCongratulationsVisualEffect();
+                    onPuzzleSolved();
                 }
             }
         });
@@ -555,8 +570,21 @@ public class MainActivity extends AppCompatActivity {
 
         // Check if we've reached the solved state
         if (game.isOver()) {
-            showCongratulationsVisualEffect();
+            onPuzzleSolved();
         }
+    }
+
+    /**
+     * Called when the puzzle is solved.
+     * Records the milestone and shows congratulations.
+     */
+    private void onPuzzleSolved() {
+        // Only record milestone if not in surrender mode
+        if (!game.isSurrenderMode()) {
+            milestonesManager.recordCompletion(currentRows, currentCols, currentSolutionDepth);
+        }
+
+        showCongratulationsVisualEffect();
     }
 
     private void updateUndoButtonAndMenuState() {
@@ -666,6 +694,15 @@ public class MainActivity extends AppCompatActivity {
 
         int menuTextColor = ContextCompat.getColor(this, R.color.menu_text_color);
 
+        // Color all menu items
+        MenuItem milestonesItem = menu.findItem(R.id.action_milestones);
+        if (milestonesItem != null) {
+            String title = getString(R.string.milestones);
+            SpannableString spannableString = new SpannableString(title);
+            spannableString.setSpan(new ForegroundColorSpan(menuTextColor), 0, spannableString.length(), 0);
+            milestonesItem.setTitle(spannableString);
+        }
+
         MenuItem surrenderItem = menu.findItem(R.id.action_surrender);
         if (surrenderItem != null) {
             String title = getString(R.string.surrender);
@@ -705,7 +742,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
-        if (itemId == R.id.action_surrender) {
+        if (itemId == R.id.action_milestones) {
+            Intent intent = new Intent(this, MilestonesActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (itemId == R.id.action_surrender) {
             showSurrenderDialog();
             return true;
         } else if (itemId == R.id.action_about) {

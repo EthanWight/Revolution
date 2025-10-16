@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">hw3-Wight</string>
     <string name="app_name_surrender">hw3-Wight (SURRENDER MODE)</string>
@@ -35,4 +36,51 @@
         <item>3×4</item>
         <item>4×4</item>
     </string-array>
+
+    <!-- Milestones Activity -->
+    <string name="milestones">Milestones</string>
+
+    <!-- Milestone Categories -->
+    <string name="milestone_grid_sizes">Grid Sizes Completed</string>
+    <string name="milestone_difficulty">Difficulty Levels</string>
+    <string name="milestone_wins">Total Victories</string>
+    <string name="milestone_master">Master Achievement</string>
+    <string name="milestone_statistics">Statistics</string>
+
+    <!-- Grid Size Milestones -->
+    <string name="milestone_3x3">Beginner</string>
+    <string name="milestone_3x3_desc">Complete a 3×3 puzzle</string>
+    <string name="milestone_3x4">Intermediate</string>
+    <string name="milestone_3x4_desc">Complete a 3×4 puzzle</string>
+    <string name="milestone_4x4">Advanced</string>
+    <string name="milestone_4x4_desc">Complete a 4×4 puzzle</string>
+
+    <!-- Difficulty Milestones -->
+    <string name="milestone_hard">Challenger</string>
+    <string name="milestone_hard_desc">Complete a puzzle with solution depth 10+</string>
+    <string name="milestone_expert">Expert</string>
+    <string name="milestone_expert_desc">Complete a puzzle with solution depth 15+</string>
+
+    <!-- Win Count Milestones -->
+    <string name="milestone_10_wins">Dedicated Player</string>
+    <string name="milestone_10_wins_desc">Win 10 puzzles</string>
+    <string name="milestone_25_wins">Puzzle Enthusiast</string>
+    <string name="milestone_25_wins_desc">Win 25 puzzles</string>
+    <string name="milestone_50_wins">Revolution Master</string>
+    <string name="milestone_50_wins_desc">Win 50 puzzles</string>
+
+    <!-- Master Milestone -->
+    <string name="milestone_master_title">Grand Master</string>
+    <string name="milestone_master_desc">Complete all grid sizes (3×3, 3×4, and 4×4)</string>
+
+    <!-- Statistics -->
+    <string name="milestone_total_wins">Total Puzzles Solved: %d</string>
+    <string name="milestone_achievements">Achievements Unlocked: %d / %d</string>
+    <string name="milestone_first_win">First Victory: %s</string>
+
+    <!-- Reset -->
+    <string name="milestone_reset">Reset All Milestones</string>
+    <string name="milestone_reset_title">Reset Milestones?</string>
+    <string name="milestone_reset_message">This will clear all your milestone progress. Are you sure?</string>
+    <string name="reset_all_milestones">Reset All Milestones</string>
 </resources>
