@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button rotateLeftButton;
     private Button rotateRightButton;
-    private LinearLayout rotationControlsLayout;
+    private ViewGroup rotationControlsLayout;
     private NumberPicker solutionDepthPicker;
     private Button undoButton;
     private int defaultButtonBackgroundColor;
@@ -117,6 +117,9 @@ public class MainActivity extends AppCompatActivity {
         rotateLeftButton = findViewById(R.id.rotateLeftButton);
         rotateRightButton = findViewById(R.id.rotateRightButton);
         rotationControlsLayout = findViewById(R.id.rotationControlsLayout);
+
+        // Rotation controls are now always visible in both portrait and landscape
+
         setupRotationButtons();
 
         if (savedInstanceState != null) {
@@ -195,12 +198,10 @@ public class MainActivity extends AppCompatActivity {
                 selectedAnchorRow = -1;
                 selectedAnchorCol = -1;
                 clearSubgridHighlight();
-                rotationControlsLayout.setVisibility(View.GONE);
             } else {
                 selectedAnchorRow = r;
                 selectedAnchorCol = c;
                 highlightSubgrid(r, c);
-                rotationControlsLayout.setVisibility(View.VISIBLE);
             }
         } else {
             String message = (selectedAnchorRow != -1)
@@ -276,7 +277,6 @@ public class MainActivity extends AppCompatActivity {
             clearSubgridHighlight();
             selectedAnchorRow = -1;
             selectedAnchorCol = -1;
-            rotationControlsLayout.setVisibility(View.GONE);
             updateUndoButtonAndMenuState();
             if (game.isOver()) {
                 showCongratulationsVisualEffect();
@@ -298,7 +298,6 @@ public class MainActivity extends AppCompatActivity {
         clearSubgridHighlight();
         selectedAnchorRow = -1;
         selectedAnchorCol = -1;
-        rotationControlsLayout.setVisibility(View.GONE);
         updateUndoButtonAndMenuState();
         Toast.makeText(this, getString(R.string.undo_success), Toast.LENGTH_SHORT).show();
     }
@@ -336,7 +335,6 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showCongratulationsVisualEffect() {
         Toast.makeText(this, getString(R.string.congratulations), Toast.LENGTH_LONG).show();
-        rotationControlsLayout.setVisibility(View.GONE);
         setGridButtonsEnabled(false);
         undoButton.setEnabled(false);
 

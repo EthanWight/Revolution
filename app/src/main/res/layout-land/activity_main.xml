@@ -91,6 +91,7 @@
 
         <!-- 2x2 Grid of buttons to the right of picker -->
         <GridLayout
+            android:id="@+id/rotationControlsLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -110,7 +111,7 @@
                 android:layout_margin="2dp"
                 android:textColor="@color/button_text_color"
                 android:text="@string/new_game"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 android:minHeight="48dp"
                 android:padding="4dp" />
 
@@ -124,7 +125,7 @@
                 android:layout_margin="2dp"
                 android:textColor="@color/button_text_color"
                 android:text="@string/undo"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 android:minHeight="48dp"
                 android:padding="4dp" />
 
@@ -138,7 +139,7 @@
                 android:layout_margin="2dp"
                 android:textColor="@color/button_text_color"
                 android:text="@string/rotate_left"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 android:minHeight="48dp"
                 android:padding="4dp" />
 
@@ -152,7 +153,7 @@
                 android:layout_margin="2dp"
                 android:textColor="@color/button_text_color"
                 android:text="@string/rotate_right"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 android:minHeight="48dp"
                 android:padding="4dp" />
         </GridLayout>
