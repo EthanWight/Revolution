@@ -1,9 +1,24 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Splash Screen Theme -->
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <!-- Set splash screen background color -->
+        <item name="windowSplashScreenBackground">@color/colorPrimary</item>
+
+        <!-- Set splash screen icon (your launcher icon) -->
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+
+        <!-- Optional: Set icon animation duration (default is 1000ms) -->
+        <item name="windowSplashScreenAnimationDuration">1000</item>
+
+        <!-- Post splash screen theme -->
+        <item name="postSplashScreenTheme">@style/Theme.Hw3Wight</item>
+    </style>
+
     <!-- Base application theme. -->
-    <style name="Base.Theme.Hw2Wight" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.Hw3Wight" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.Hw2Wight" parent="Base.Theme.Hw2Wight" />
+    <style name="Theme.Hw3Wight" parent="Base.Theme.Hw3Wight" />
 </resources>
