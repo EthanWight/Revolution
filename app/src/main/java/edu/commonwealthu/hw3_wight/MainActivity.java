@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Install splash screen before calling super.onCreate()
-        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+        SplashScreen.installSplashScreen(this);
 
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
