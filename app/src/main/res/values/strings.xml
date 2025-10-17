@@ -83,4 +83,9 @@
     <string name="milestone_reset_title">Reset Milestones?</string>
     <string name="milestone_reset_message">This will clear all your milestone progress. Are you sure?</string>
     <string name="reset_all_milestones">Reset All Milestones</string>
+
+    <!-- Sound Settings -->
+    <string name="sound_effects">Sound Effects</string>
+    <string name="sound_enabled">Sound effects enabled</string>
+    <string name="sound_disabled">Sound effects disabled</string>
 </resources>

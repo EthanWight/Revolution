@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.Animator;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,6 +43,8 @@ import com.google.android.material.appbar.MaterialToolbar;
  * <p>
  * Enhanced with surrender mode that allows viewing the solution and
  * milestones tracking for achievements.
+ * <p>
+ * Sound effects can be toggled on/off via the menu.
  *
  * @author Ethan Wight
  */
@@ -51,11 +54,14 @@ public class MainActivity extends AppCompatActivity {
     private GridLayout gridLayout;
     private Button[][] gameButtons;
     private MilestonesManager milestonesManager;
+    private SharedPreferences preferences;
 
     private static final String GAME_STATE = "gameState";
     private static final String GRID_ROWS = "gridRows";
     private static final String GRID_COLS = "gridCols";
     private static final String SELECTED_GRID_SIZE = "selectedGridSize";
+    private static final String PREFS_NAME = "RevolutionSettings";
+    private static final String KEY_SOUND_ENABLED = "sound_enabled";
     private static final int DEFAULT_SOLUTION_DEPTH = 5;
     private static final int MIN_SOLUTION_DEPTH = 1;
     private static final int MAX_SOLUTION_DEPTH = 20;
@@ -96,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
     // Sound effects
     private MediaPlayer rotationSoundPlayer;
     private MediaPlayer winSoundPlayer;
+    private boolean soundEnabled = true;
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -129,6 +136,10 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        // Initialize preferences
+        preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        soundEnabled = preferences.getBoolean(KEY_SOUND_ENABLED, true);
 
         // Initialize milestones manager
         milestonesManager = new MilestonesManager(this);
@@ -236,8 +247,30 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Checks if sound effects are enabled.
+     *
+     * @return True if sound is enabled, false otherwise
+     */
+    private boolean isSoundEnabled() {
+        return soundEnabled;
+    }
+
+    /**
+     * Toggles the sound effects on or off and saves the preference.
+     *
+     * @param enabled True to enable sound, false to disable
+     */
+    private void setSoundEnabled(boolean enabled) {
+        soundEnabled = enabled;
+        preferences.edit().putBoolean(KEY_SOUND_ENABLED, enabled).apply();
+
+        String message = enabled ? getString(R.string.sound_enabled) : getString(R.string.sound_disabled);
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
     private void playRotationSound() {
-        if (rotationSoundPlayer != null) {
+        if (isSoundEnabled() && rotationSoundPlayer != null) {
             try {
                 if (rotationSoundPlayer.isPlaying()) {
                     rotationSoundPlayer.seekTo(0);
@@ -250,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void playWinSound() {
-        if (winSoundPlayer != null) {
+        if (isSoundEnabled() && winSoundPlayer != null) {
             try {
                 if (winSoundPlayer.isPlaying()) {
                     winSoundPlayer.seekTo(0);
@@ -689,11 +722,26 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
+
+        // Set the initial state of the sound toggle
+        MenuItem soundItem = menu.findItem(R.id.action_sound_toggle);
+        if (soundItem != null) {
+            soundItem.setChecked(soundEnabled);
+        }
+
         updateUndoButtonAndMenuState();
 
         int menuTextColor = ContextCompat.getColor(this, R.color.menu_text_color);
 
         // Color all menu items
+        MenuItem soundToggleItem = menu.findItem(R.id.action_sound_toggle);
+        if (soundToggleItem != null) {
+            String title = getString(R.string.sound_effects);
+            SpannableString spannableString = new SpannableString(title);
+            spannableString.setSpan(new ForegroundColorSpan(menuTextColor), 0, spannableString.length(), 0);
+            soundToggleItem.setTitle(spannableString);
+        }
+
         MenuItem milestonesItem = menu.findItem(R.id.action_milestones);
         if (milestonesItem != null) {
             String title = getString(R.string.milestones);
@@ -735,13 +783,25 @@ public class MainActivity extends AppCompatActivity {
             // Disable surrender option if already in surrender mode
             surrenderItem.setEnabled(!game.isSurrenderMode());
         }
+
+        // Update sound toggle state
+        MenuItem soundItem = menu.findItem(R.id.action_sound_toggle);
+        if (soundItem != null) {
+            soundItem.setChecked(soundEnabled);
+        }
+
         return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
-        if (itemId == R.id.action_milestones) {
+        if (itemId == R.id.action_sound_toggle) {
+            // Toggle sound and update menu item
+            setSoundEnabled(!soundEnabled);
+            item.setChecked(soundEnabled);
+            return true;
+        } else if (itemId == R.id.action_milestones) {
             Intent intent = new Intent(this, MilestonesActivity.class);
             startActivity(intent);
             return true;
