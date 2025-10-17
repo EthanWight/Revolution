@@ -180,10 +180,19 @@ public class MainActivity extends AppCompatActivity {
         gridSizeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, android.view.View view, int position, long id) {
+                int previousRows = currentRows;
+                int previousCols = currentCols;
+
                 switch (position) {
                     case 0: currentRows = 3; currentCols = 3; break;
                     case 1: currentRows = 3; currentCols = 4; break;
                     case 2: currentRows = 4; currentCols = 4; break;
+                }
+
+                // Only start a new game if the size actually changed
+                // (avoids restarting during initial setup)
+                if (game != null && (previousRows != currentRows || previousCols != currentCols)) {
+                    startNewGame(solutionDepthPicker.getValue());
                 }
             }
 
@@ -378,7 +387,7 @@ public class MainActivity extends AppCompatActivity {
 
         int buttonWidth = topLeft.getWidth();
         int buttonHeight = topLeft.getHeight();
-        float rotationAngle = isLeftRotation ? -90f : 90f;
+        float rotationAngle = isLeftRotation ? -360f : 360f;
 
         AnimatorSet animatorSet = new AnimatorSet();
 
