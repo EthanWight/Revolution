@@ -1,28 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">hw3-Wight</string>
-    <string name="app_name_surrender">hw3-Wight (SURRENDER MODE)</string>
+    <!-- App Name -->
+    <string name="app_name">Revolution</string>
+    <string name="app_name_surrender">Revolution (SURRENDER MODE)</string>
+
+    <!-- Main Game Controls -->
     <string name="rotate_left">Rotate Left</string>
     <string name="rotate_right">Rotate Right</string>
     <string name="new_game">New Game</string>
-    <string name="solution_depth">Solution Depth:</string>
-    <string name="grid_size">Grid Size:</string>
     <string name="undo">Undo</string>
     <string name="undo_with_count">Undo (%d)</string>
+
+    <!-- Game Settings -->
+    <string name="solution_depth">Solution Depth:</string>
+    <string name="grid_size">Grid Size:</string>
+
+    <!-- Grid Size Options -->
+    <string-array name="grid_sizes">
+        <item>3×3</item>
+        <item>3×4</item>
+        <item>4×4</item>
+    </string-array>
+
+    <!-- Menu Items -->
     <string name="about">About</string>
     <string name="exit">Exit</string>
     <string name="surrender">Surrender</string>
-    <string name="about_message">Revolution Game - hw3-Wight\nDeveloped by Ethan Wight\n\nSupports 3×3, 3×4, and 4×4 grids\n\nNew Feature: Surrender mode allows you to view the solution by undoing the scrambling moves.</string>
-    <string name="undo_error">Error: No moves to undo.</string>
-    <string name="undo_success">Move undone.</string>
-    <string name="undo_surrender_success">Move undone. %d moves remaining to solution.</string>
-    <string name="exit_confirmation_message">Are you sure you want to exit?</string>
+    <string name="milestones">Milestones</string>
+    <string name="sound_effects">Sound Effects</string>
+
+    <!-- Game Messages -->
     <string name="congratulations">Congratulations! You solved the puzzle!</string>
     <string name="invalid_tile_selection">Invalid tile. Click a rotation button or select a new anchor.</string>
     <string name="select_subgrid_prompt">Select a tile that can be the top-left of a 2x2 subgrid.</string>
     <string name="subgrid_selection_prompt">Please select a 2x2 subgrid to rotate first.</string>
 
-    <!-- Surrender mode strings -->
+    <!-- Undo Messages -->
+    <string name="undo_error">Error: No moves to undo.</string>
+    <string name="undo_success">Move undone.</string>
+    <string name="undo_surrender_success">Move undone. %d moves remaining to solution.</string>
+
+    <!-- Surrender Mode -->
     <string name="surrender_title">Surrender and View Solution</string>
     <string name="surrender_message">Give up and see the solution? You can:\n\n• Step through the solution one undo at a time\n• Reveal the full solution immediately\n\nThis will enable surrender mode, allowing you to undo moves back through the scrambling sequence.</string>
     <string name="surrender_step_by_step">Step by Step</string>
@@ -30,17 +48,15 @@
     <string name="surrender_mode_enabled">Surrender mode enabled. You can now undo %d moves to reach the solution.</string>
     <string name="solution_revealed">Solution revealed! Undid %d moves.</string>
 
-    <!-- Grid size options -->
-    <string-array name="grid_sizes">
-        <item>3×3</item>
-        <item>3×4</item>
-        <item>4×4</item>
-    </string-array>
+    <!-- Dialog Messages -->
+    <string name="about_message">Revolution - A Rotational Puzzle Game\nDeveloped by Ethan Wight\n\nSupports 3×3, 3×4, and 4×4 grids\n\nFeature: Surrender mode allows you to view the solution by undoing the scrambling moves.</string>
+    <string name="exit_confirmation_message">Are you sure you want to exit?</string>
 
-    <!-- Milestones Activity -->
-    <string name="milestones">Milestones</string>
+    <!-- Sound Settings -->
+    <string name="sound_enabled">Sound effects enabled</string>
+    <string name="sound_disabled">Sound effects disabled</string>
 
-    <!-- Milestone Categories -->
+    <!-- Milestones -->
     <string name="milestone_grid_sizes">Grid Sizes Completed</string>
     <string name="milestone_difficulty">Difficulty Levels</string>
     <string name="milestone_wins">Total Victories</string>
@@ -73,19 +89,13 @@
     <string name="milestone_master_title">Grand Master</string>
     <string name="milestone_master_desc">Complete all grid sizes (3×3, 3×4, and 4×4)</string>
 
-    <!-- Statistics -->
+    <!-- Statistics Display -->
     <string name="milestone_total_wins">Total Puzzles Solved: %d</string>
     <string name="milestone_achievements">Achievements Unlocked: %d / %d</string>
     <string name="milestone_first_win">First Victory: %s</string>
 
-    <!-- Reset -->
-    <string name="milestone_reset">Reset All Milestones</string>
+    <!-- Reset Milestones -->
+    <string name="reset_all_milestones">Reset All Milestones</string>
     <string name="milestone_reset_title">Reset Milestones?</string>
     <string name="milestone_reset_message">This will clear all your milestone progress. Are you sure?</string>
-    <string name="reset_all_milestones">Reset All Milestones</string>
-
-    <!-- Sound Settings -->
-    <string name="sound_effects">Sound Effects</string>
-    <string name="sound_enabled">Sound effects enabled</string>
-    <string name="sound_disabled">Sound effects disabled</string>
 </resources>

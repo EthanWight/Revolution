@@ -1,37 +1,69 @@
 <resources>
     <!-- Splash Screen Theme -->
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <!-- Set splash screen background color -->
         <item name="windowSplashScreenBackground">@color/colorPrimary</item>
-
-        <!-- Set splash screen icon (your launcher icon) -->
         <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
-
-        <!-- Optional: Set icon animation duration (default is 1000ms) -->
         <item name="windowSplashScreenAnimationDuration">1000</item>
-
-        <!-- Post splash screen theme -->
-        <item name="postSplashScreenTheme">@style/Theme.Hw3Wight</item>
+        <item name="postSplashScreenTheme">@style/Theme.RevolutionGame</item>
     </style>
 
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Hw3Wight" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <!-- Base Application Theme -->
+    <style name="Base.Theme.RevolutionGame" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:colorBackground">@color/background_light</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_hint</item>
     </style>
 
-    <style name="Theme.Hw3Wight" parent="Base.Theme.Hw3Wight" />
+    <style name="Theme.RevolutionGame" parent="Base.Theme.RevolutionGame" />
 
-    <!-- Custom Popup Menu Theme -->
-    <!-- Custom Popup Menu Theme with explicit colors -->
-    <style name="AppTheme.PopupMenu" parent="ThemeOverlay.MaterialComponents.Dark">
+    <style name="Theme.Hw3Wight" parent="Base.Theme.RevolutionGame" />
 
+    <!-- Button Style -->
+    <style name="Widget.App.Button" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/colorPrimary</item>
+        <item name="android:textColor">@color/button_text_color</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="android:minHeight">@dimen/button_min_height</item>
+        <item name="android:textSize">@dimen/button_text_size</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="elevation">2dp</item>
+    </style>
+
+    <!-- Toolbar Style -->
+    <style name="Widget.App.Toolbar" parent="Widget.Material3.Toolbar">
         <item name="android:background">@color/colorPrimary</item>
-        <item name="android:textColor">@android:color/white</item>
-        <item name="overlapAnchor">false</item>
-        <item name="android:popupBackground">@color/colorPrimary</item>
-        <item name="popupMenuBackground">@color/colorPrimary</item>
-
+        <item name="titleTextColor">@color/white</item>
+        <item name="android:elevation">4dp</item>
     </style>
 
+    <!-- Popup Menu Theme -->
+    <style name="AppTheme.PopupMenu" parent="ThemeOverlay.Material3.Dark">
+        <item name="android:background">@color/menu_background</item>
+        <item name="android:textColor">@color/menu_text_color</item>
+        <item name="overlapAnchor">false</item>
+        <item name="android:popupBackground">@color/menu_background</item>
+        <item name="popupMenuBackground">@color/menu_background</item>
+    </style>
+
+    <!-- Card Style for Milestones -->
+    <style name="Widget.App.Card" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">12dp</item>
+        <item name="cardElevation">2dp</item>
+        <item name="contentPadding">16dp</item>
+    </style>
+
+    <!-- Text Styles -->
+    <style name="TextAppearance.App.Headline" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="TextAppearance.App.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
 </resources>

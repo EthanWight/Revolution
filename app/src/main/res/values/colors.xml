@@ -1,35 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary brand colors -->
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
+    <!-- Primary Brand Colors - Modern Purple Theme -->
+    <color name="colorPrimary">#7C4DFF</color>
+    <color name="colorPrimaryDark">#6200EA</color>
+    <color name="colorPrimaryLight">#B388FF</color>
+    <color name="colorAccent">#00E5FF</color>
+    <color name="colorAccentDark">#00B8D4</color>
 
-    <!-- UI element colors -->
+    <!-- UI Element Colors -->
     <color name="button_text_color">#FFFFFF</color>
-    <color name="tile_background">#BB86FC</color>
-    <color name="tile_text_color">#000000</color>
-    <color name="selected_tile_background">#03DAC5</color>
-    <color name="surrender_mode_background">#FF6F00</color>
+    <color name="tile_background">#B388FF</color>
+    <color name="tile_text_color">#1A1A1A</color>
+    <color name="selected_tile_background">#00E5FF</color>
+    <color name="surrender_mode_background">#FF6E40</color>
 
-    <!-- Menu text color -->
+    <!-- Menu Colors -->
     <color name="menu_text_color">#FFFFFF</color>
+    <color name="menu_background">#6200EA</color>
 
-    <!-- Standard colors -->
+    <!-- Background Colors -->
+    <color name="background_light">#FAFAFA</color>
+    <color name="background_dark">#121212</color>
+    <color name="surface">#FFFFFF</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#9E9E9E</color>
+
+    <!-- Standard Colors -->
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
 
-    <!-- Victory flash colors -->
-    <color name="flash_green">#4CAF50</color>
-    <color name="flash_yellow">#FFEB3B</color>
-    <color name="flash_magenta">#E91E63</color>
-    <color name="flash_cyan">#00BCD4</color>
-    <color name="flash_red">#F44336</color>
+    <!-- Victory Flash Colors - Vibrant Animation -->
+    <color name="flash_green">#00E676</color>
+    <color name="flash_yellow">#FFD600</color>
+    <color name="flash_magenta">#D500F9</color>
+    <color name="flash_cyan">#00E5FF</color>
+    <color name="flash_red">#FF1744</color>
 
-    <!-- Milestone colors -->
-    <color name="milestone_achieved">#4CAF50</color>
-    <color name="milestone_unachieved">#9E9E9E</color>
+    <!-- Milestone Colors -->
+    <color name="milestone_achieved">#00E676</color>
+    <color name="milestone_unachieved">#BDBDBD</color>
     <color name="milestone_text">#212121</color>
     <color name="milestone_description">#757575</color>
-    <color name="milestone_reset">#F44336</color>
+    <color name="milestone_reset">#FF1744</color>
 </resources>
