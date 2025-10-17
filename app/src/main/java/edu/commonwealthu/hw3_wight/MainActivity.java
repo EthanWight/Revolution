@@ -16,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.OvershootInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -40,7 +39,7 @@ import com.google.android.material.appbar.MaterialToolbar;
  * Plays the Revolution puzzle game. This class manages the user interface,
  * game state interactions, and visual feedback for the player.
  * Supports 3×3, 3×4, and 4×4 grid sizes.
- *
+ * <p>
  * Enhanced with surrender mode that allows viewing the solution and
  * milestones tracking for achievements.
  *

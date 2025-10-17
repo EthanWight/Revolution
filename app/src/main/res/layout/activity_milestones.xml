@@ -15,14 +15,17 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/colorPrimary"
+            app:title="@string/milestones"
             app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:popupTheme="@style/ThemeOverlay.MaterialComponents.Dark" />
+            app:popupTheme="@style/AppTheme.PopupMenu"
+            />
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:importantForAccessibility="no"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout"
         app:layout_constraintBottom_toBottomOf="parent">
 

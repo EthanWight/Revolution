@@ -78,17 +78,6 @@ public class MilestonesManager {
     }
 
     /**
-     * Checks if a specific solution depth has been completed.
-     *
-     * @param solDepth The solution depth to check
-     * @return True if this solution depth has been completed at least once
-     */
-    public boolean hasCompletedSolutionDepth(int solDepth) {
-        Set<String> solDepths = preferences.getStringSet(KEY_SOLUTION_DEPTHS, new HashSet<>());
-        return solDepths.contains(String.valueOf(solDepth));
-    }
-
-    /**
      * Gets the set of all completed grid sizes.
      *
      * @return Set of grid size strings (e.g., "3x3", "4x4")

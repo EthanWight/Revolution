@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,24 +33,14 @@ public class MilestonesActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_milestones);
 
         try {
             Log.d(TAG, "onCreate started");
 
-            // Create layout programmatically to avoid any layout issues
-            ScrollView scrollView = new ScrollView(this);
-            milestonesContainer = new LinearLayout(this);
-            milestonesContainer.setOrientation(LinearLayout.VERTICAL);
-            scrollView.addView(milestonesContainer);
-            setContentView(scrollView);
-
-            Log.d(TAG, "Layout created");
-
             // Setup toolbar
             try {
-                MaterialToolbar toolbar = new MaterialToolbar(this);
-                toolbar.setTitle(getStringResource(R.string.milestones));
-                toolbar.setBackgroundColor(getColorResource(R.color.colorPrimary, 0xFF6200EE));
+                MaterialToolbar toolbar = findViewById(R.id.toolbar);
                 setSupportActionBar(toolbar);
                 if (getSupportActionBar() != null) {
                     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -61,6 +50,9 @@ public class MilestonesActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Log.e(TAG, "Error setting up toolbar", e);
             }
+
+            milestonesContainer = findViewById(R.id.milestonesContainer);
+            Log.d(TAG, "Layout created");
 
             // Initialize manager
             try {
@@ -87,18 +79,6 @@ public class MilestonesActivity extends AppCompatActivity {
             Log.e(TAG, "Fatal error in onCreate", e);
             Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
             finish();
-        }
-    }
-
-    /**
-     * Helper to safely get string resources with fallback
-     */
-    private String getStringResource(int resId) {
-        try {
-            return getString(resId);
-        } catch (Exception e) {
-            Log.w(TAG, "String resource not found: " + resId, e);
-            return "Milestones";
         }
     }
 
@@ -330,10 +310,10 @@ public class MilestonesActivity extends AppCompatActivity {
         // Add ripple effect
         try {
             int[] attrs = new int[]{android.R.attr.selectableItemBackground};
-            android.content.res.TypedArray ta = obtainStyledAttributes(attrs);
-            android.graphics.drawable.Drawable drawable = ta.getDrawable(0);
-            ta.recycle();
-            resetButton.setBackground(drawable);
+            try (android.content.res.TypedArray ta = obtainStyledAttributes(attrs)) {
+                android.graphics.drawable.Drawable drawable = ta.getDrawable(0);
+                resetButton.setBackground(drawable);
+            }
         } catch (Exception e) {
             Log.w(TAG, "Could not set ripple effect", e);
         }
