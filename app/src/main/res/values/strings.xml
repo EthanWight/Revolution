@@ -44,7 +44,7 @@
     <string name="surrender_title">Surrender and View Solution</string>
     <string name="surrender_message">Give up and see the solution? You can:\n\n• Step through the solution one undo at a time\n• Reveal the full solution immediately\n\nThis will enable surrender mode, allowing you to undo moves back through the scrambling sequence.</string>
     <string name="surrender_step_by_step">Step by Step</string>
-    <string name="surrender_show_all">Show All</string>
+    <string name="surrender_show_all">Show Solution</string>
     <string name="surrender_mode_enabled">Surrender mode enabled. You can now undo %d moves to reach the solution.</string>
     <string name="solution_revealed">Solution revealed! Undid %d moves.</string>
 
