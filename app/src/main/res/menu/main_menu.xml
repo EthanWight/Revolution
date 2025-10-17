@@ -15,14 +15,12 @@
         android:id="@+id/action_milestones"
         android:orderInCategory="25"
         android:title="@string/milestones"
-        android:icon="@android:drawable/star_on"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/action_surrender"
         android:orderInCategory="50"
         android:title="@string/surrender"
-        android:icon="@android:drawable/ic_menu_revert"
         app:showAsAction="never" />
 
     <item

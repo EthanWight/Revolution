@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App Name -->
-    <string name="app_name">Revolution</string>
+    <string name="app_name">hw3-Wight</string>
     <string name="app_name_surrender">Revolution (SURRENDER MODE)</string>
 
     <!-- Main Game Controls -->
