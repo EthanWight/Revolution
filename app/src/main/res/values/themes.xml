@@ -23,5 +23,12 @@
     <style name="Theme.Hw3Wight" parent="Base.Theme.Hw3Wight" />
 
     <!-- Custom Popup Menu Theme -->
-    <style name="AppTheme.PopupMenu" parent="ThemeOverlay.MaterialComponents.Light" />
+    <!-- Custom Popup Menu Theme with explicit colors -->
+    <style name="AppTheme.PopupMenu" parent="ThemeOverlay.MaterialComponents.Dark">
+        <!-- Set the background color of the popup menu -->
+        <item name="android:background">@color/colorPrimary</item>
+        <!-- Set the text color of the menu items -->
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
 </resources>
